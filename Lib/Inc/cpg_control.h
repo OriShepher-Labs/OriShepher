@@ -24,7 +24,7 @@ typedef struct {
  * @details 设置CPG的初始时间、状态变量、频率、幅值、偏置、收敛因子、耦合权重和相位差等参数。
  *          必须在CPG算法使用前调用一次。
  */
-void initCPGState(CPGState *state);
+void CPG_Init(CPGState *state);
 
 /**
  * @brief 将SBUS通道值映射到目标范围，支持负值传递

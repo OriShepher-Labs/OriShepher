@@ -1,8 +1,8 @@
 #include "main_task.h"
 
-uint16_t channel_buf[6]={0}; // 6个通道数据存储数组
+uint16_t sbus_channels[6]={0}; // SBUS接收的11位通道值数组(0-2047)
 CPGState state;
-double dt = 0.01; // 时间步长
+double dt = 0.01; // CPG时间步长
 SERVO_ID servo_ids[3] = {SERVO_1, SERVO_2, SERVO_3};
 
 // 初始化
@@ -10,25 +10,26 @@ void mainTaskInit(void)
 {
     OLED_kk_Init();
     Servo_Init();
-    initCPGState(&state);
+    CPG_Init(&state);
 
-    // 启动USART1中断接收
-    uint8_t dummyByte;
-    HAL_UART_Receive_IT(&huart1, &dummyByte, 1);
+    // 启动UART1中断接收
+    extern uint8_t sbus_rx_dummy_byte;
+    HAL_UART_Receive_IT(&huart1, &sbus_rx_dummy_byte, 1);
 }
 
 // 主程序
 void mainTask(void)
 {
     OLED_NewFrame(); // 清除帧缓存
-    if(sbus_data_ready){            // 数据就绪可以读取
-        sbus_data_ready = 0;
-        Save_6CH(channel_buf);      // 使用Save_6CH函数向channel_buf写入通道数据
-        rxbuf_clear();              // 清空串口缓冲区
+    // 检查SBUS帧是否就绪
+    if(sbus_frame_ready){                               // SBUS帧接收完毕且数据有效
+        sbus_frame_ready = 0;                           // 清除就绪标志
+        sbus_decode_channels(sbus_channels);   // 解码SBUS帧为sbus_channels数组
+        sbus_clear_frame_buffer();                      // 清空SBUS缓冲区
 
-        // 更新CPG状态
-        set_cpg_frequency(&state, channel_buf[2]);    // 每次循环都设置频率
-        set_cpg_bias(&state, channel_buf[3]);
+        // 更新CPG状态：根据接收到的通道值控制CPG参数
+        set_cpg_frequency(&state, sbus_channels[2]);    // CH3控制速度
+        set_cpg_bias(&state, sbus_channels[3]);         // CH4控制偏置
         // CPG更新舵机角度数据
         cpg_update(&state, dt);
 
@@ -46,16 +47,16 @@ void mainTask(void)
             OLED_PrintASCIIString(1, i + 1, servo_label, &afont8x6, OLED_COLOR_NORMAL);
             OLED_PrintFloat(4, i + 1, servo_angles[i], 0, &afont8x6, OLED_COLOR_NORMAL);
             printf("Servo ID: %d\n", servo_ids[i]);
-            Servo_SetAngle(servo_ids[i], servo_angles[i]);             //分别设置3个舵机
+            Servo_SetAngle(servo_ids[i], servo_angles[i]);             // 分别设定3个水底舵机
         }
-        Servo_SetAngle(SERVO_4, map_to_range(55, 145, channel_buf[1]));     // 单独设置侧鳍舵机
+        Servo_SetAngle(SERVO_4, map_to_range(55, 145, sbus_channels[1]));     // CH2控制侧鳍舵机角度
         // 速度、偏置、侧鳍 数据
         OLED_PrintASCIIString(8, 1, "a:", &afont8x6, OLED_COLOR_NORMAL);
         OLED_PrintFloat(10, 1, state.omega[0], 1, &afont8x6, OLED_COLOR_NORMAL);            // 显示浮点数，保留1位小数
         OLED_PrintASCIIString(8, 2, "b:", &afont8x6, OLED_COLOR_NORMAL);
         OLED_PrintFloat(10, 2, state.bias[0], 1, &afont8x6, OLED_COLOR_NORMAL);             // 显示浮点数，保留1位小数
         OLED_PrintASCIIString(8, 3, "c:", &afont8x6, OLED_COLOR_NORMAL);
-        OLED_PrintFloat(10, 3, map_to_range(55, 145, channel_buf[1]), 1, &afont8x6, OLED_COLOR_NORMAL);           // 转换为浮点数显示
+        OLED_PrintFloat(10, 3, map_to_range(55, 145, sbus_channels[1]), 1, &afont8x6, OLED_COLOR_NORMAL);           // 侧鳍网络控制角度
     } else {
         
     }
