@@ -47,11 +47,12 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     # 源文件路径(.c)
     APP/Src/main_task.c
-    Lib/Src/cpg_control.c
+    Lib/Src/cpg_algorithm.c
     Lib/Src/font_kk.c
     Lib/Src/oled_kk_simple.c
     Lib/Src/SBUS.c
-    Lib/Src/servo.c
+    Lib/Src/servo_control.c
+    Lib/Src/useless_functions.c
 )
 
 # Add include paths

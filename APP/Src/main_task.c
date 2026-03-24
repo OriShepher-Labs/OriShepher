@@ -1,5 +1,8 @@
 #include "main_task.h"
+#include "font_kk_simple.h"
 #include "oled_kk_simple.h"
+#include "stm32f1xx_hal.h"
+#include "useless_functions.h"
 
 uint16_t sbus_channels[6]={0}; // SBUS接收的11位通道值数组(0-2047)
 CPGState state;
@@ -9,6 +12,8 @@ SERVO_ID servo_ids[3] = {SERVO_1, SERVO_2, SERVO_3};
 // 初始化
 void mainTaskInit(void)
 {
+    // 延时100ms避免屏幕未通电
+    HAL_Delay(100);
     OLED_kk_Init();
     Servo_Init();
     CPG_Init(&state);
@@ -16,24 +21,24 @@ void mainTaskInit(void)
     // 启动UART1中断接收 （遥控器）
     extern uint8_t sbus_rx_dummy_byte;
     HAL_UART_Receive_IT(&huart1, &sbus_rx_dummy_byte, 1);
+    HAL_Delay(100);
 }
 
 // 主程序
 void mainTask(void)
 {
-    OLED_NewFrame(); // 清除帧缓存
     // 检查SBUS帧是否就绪
     if(sbus_frame_ready){                               // SBUS帧接收完毕且数据有效
         sbus_frame_ready = 0;                           // 清除就绪标志
         sbus_decode_channels(sbus_channels);   // 解码SBUS帧为sbus_channels数组
         sbus_clear_frame_buffer();                      // 清空SBUS缓冲区
-
+        
         // 更新CPG状态：根据接收到的通道值控制CPG参数
         set_cpg_frequency(&state, sbus_channels[2]);    // CH3控制速度
         set_cpg_bias(&state, sbus_channels[3]);         // CH4控制偏置
         // CPG更新舵机角度数据
         cpg_update(&state, dt);
-
+        
         // 获取舵机角度数据
         double servo_angles[3];
         for (int i = 0; i < 3; i++) {
@@ -59,10 +64,11 @@ void mainTask(void)
         OLED_PrintASCIIString(8, 3, "c:", &afont8x6, OLED_COLOR_NORMAL);
         OLED_PrintFloat(10, 3, map_to_range(55, 145, sbus_channels[1]), 1, &afont8x6, OLED_COLOR_NORMAL);           // 侧鳍网络控制角度
     } else {
-        // 字符串显示测试
-        OLED_PrintASCIIStringAutoEnter(1, 1, "{/\\|~},.<>?;:'[]`!@#$^&*()", &afont8x6, OLED_COLOR_NORMAL);
-        OLED_PrintASCIIStringAutoEnter(1, 3, "{/\\|~},.<>?;:'[]`!@#$^&*()", &afont12x6, OLED_COLOR_NORMAL);
-        
+        // // SBUS帧未就绪，显示等待信息
+        OLED_PrintASCIIString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
+        OLED_PrintASCIIString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
     }
+    running_sign(1000); // 运行状态指示动画
     OLED_ShowFrame(); // 显示帧
+    OLED_NewFrame(); // 清除帧缓存
 }
