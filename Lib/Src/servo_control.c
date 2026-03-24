@@ -1,4 +1,4 @@
-#include "servo.h"
+#include "servo_control.h"
 #include "tim.h"
 
 void Servo_Init(void){

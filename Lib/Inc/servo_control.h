@@ -1,5 +1,5 @@
-#ifndef __SERVO_H__
-#define __SERVO_H__
+#ifndef __SERVO_CONTROL_H__
+#define __SERVO_CONTROL_H__
 
 #include "main.h"
 

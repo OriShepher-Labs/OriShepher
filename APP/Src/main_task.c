@@ -1,4 +1,5 @@
 #include "main_task.h"
+#include "oled_kk_simple.h"
 
 uint16_t sbus_channels[6]={0}; // SBUS接收的11位通道值数组(0-2047)
 CPGState state;
@@ -12,7 +13,7 @@ void mainTaskInit(void)
     Servo_Init();
     CPG_Init(&state);
 
-    // 启动UART1中断接收
+    // 启动UART1中断接收 （遥控器）
     extern uint8_t sbus_rx_dummy_byte;
     HAL_UART_Receive_IT(&huart1, &sbus_rx_dummy_byte, 1);
 }
@@ -58,6 +59,9 @@ void mainTask(void)
         OLED_PrintASCIIString(8, 3, "c:", &afont8x6, OLED_COLOR_NORMAL);
         OLED_PrintFloat(10, 3, map_to_range(55, 145, sbus_channels[1]), 1, &afont8x6, OLED_COLOR_NORMAL);           // 侧鳍网络控制角度
     } else {
+        // 字符串显示测试
+        OLED_PrintASCIIStringAutoEnter(1, 1, "{/\\|~},.<>?;:'[]`!@#$^&*()", &afont8x6, OLED_COLOR_NORMAL);
+        OLED_PrintASCIIStringAutoEnter(1, 3, "{/\\|~},.<>?;:'[]`!@#$^&*()", &afont12x6, OLED_COLOR_NORMAL);
         
     }
     OLED_ShowFrame(); // 显示帧

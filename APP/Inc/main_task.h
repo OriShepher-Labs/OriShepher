@@ -1,15 +1,18 @@
 #ifndef __MAIN_TASK_H__
 #define __MAIN_TASK_H__
 
+// 硬件抽象与底层配置库 HAL Layer
 #include "main.h"
 #include "stm32f1xx_hal.h"
 #include "usart.h"
 
+// 用户自定义与功能逻辑库 (User Application Layer)
 #include "oled_kk_simple.h"
-#include "cpg_control.h"
-#include "servo.h"
+#include "cpg_algorithm.h"
+#include "servo_control.h"
 #include "SBUS.h"
 
+// C 标准库
 #include <math.h>
 #include <stdio.h>
 #include <string.h>

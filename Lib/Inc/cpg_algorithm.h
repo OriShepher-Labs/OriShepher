@@ -1,5 +1,5 @@
-#ifndef CPG_CONTROL_H
-#define CPG_CONTROL_H
+#ifndef CPG_ALGORITHM_H
+#define CPG_ALGORITHM_H
 
 #include <stdint.h>
 #include <stdlib.h>

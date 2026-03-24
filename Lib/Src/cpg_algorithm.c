@@ -1,4 +1,4 @@
-#include "cpg_control.h"
+#include "cpg_algorithm.h"
 
 /*
 x和y代表振荡器的状态变量; ω代表振荡器的频率; r、A代表振荡器的幅值; 
