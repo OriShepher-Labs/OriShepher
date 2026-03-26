@@ -24,7 +24,7 @@ typedef struct {
  * @details 设置CPG的初始时间、状态变量、频率、幅值、偏置、收敛因子、耦合权重和相位差等参数。
  *          必须在CPG算法使用前调用一次。
  */
-void CPG_Init(CPGState *state);
+void CPG_init(CPGState *state);
 
 /**
  * @brief 将SBUS通道值映射到目标范围，支持负值传递
@@ -51,7 +51,7 @@ void set_phase_direction(CPGState *state, int reverse);
  *              使用SBUS通道2的数据，映射范围 (-5.5, 5.5)
  * @details 所有振荡器频率统一设置为 freq
  */
-void set_cpg_frequency(CPGState *state, double freq);
+void CPG_setFrequency(CPGState *state, double freq);
 
 /**
  * @brief 获取不同时间段的偏置量，并切换相位方向

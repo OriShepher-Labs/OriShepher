@@ -16,10 +16,10 @@ void mainTaskInit(void)
     HAL_Delay(100);
     OLED_kk_Init();
     Servo_Init();
-    CPG_Init(&state);
+    CPG_init(&state);
 
     // 启动UART1中断接收 （遥控器）
-    extern uint8_t sbus_rx_dummy_byte;
+    extern uint8_t sbus_rx_dummy_byte; // extern 告诉编译器“这个变量/函数在其他文件中定义，当前文件只是引用它”，因此编译器不会为其分配内存空间，而是在链接阶段去其他文件中寻找其实际定义。
     HAL_UART_Receive_IT(&huart1, &sbus_rx_dummy_byte, 1);
     HAL_Delay(100);
 }
@@ -34,7 +34,7 @@ void mainTask(void)
         sbus_clear_frame_buffer();                      // 清空SBUS缓冲区
         
         // 更新CPG状态：根据接收到的通道值控制CPG参数
-        set_cpg_frequency(&state, sbus_channels[2]);    // CH3控制速度
+        CPG_setFrequency(&state, sbus_channels[2]);    // CH3控制速度
         set_cpg_bias(&state, sbus_channels[3]);         // CH4控制偏置
         // CPG更新舵机角度数据
         cpg_update(&state, dt);
