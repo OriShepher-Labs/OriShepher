@@ -15,7 +15,7 @@ k为Hopf振荡器的收敛因子; 耦合项p(t)与q(t);
  * @details 设置CPG的初始时间、状态变量、频率、幅值、偏置、收敛因子、耦合权重和相位差等参数。
  *          必须在CPG算法使用前调用一次。
  */
-void CPG_init(CPGState *state) {
+void CPG_init(CPG_State *state) {
     state->t = 0.0;
     for (int i = 0; i < 3; i++) {
         state->x[i] = 0.1;
@@ -42,7 +42,7 @@ void CPG_init(CPGState *state) {
  * @return double 映射后的目标值
  * @details 中间值1024将映射到目标范围的中点
  */
-double map_to_range(double target_min, double target_max, double sbus_value) {
+double mapToRange(double target_min, double target_max, double sbus_value) {
     // SBUS原始范围参数
     const int16_t SBUS_MIN = 353;
     const int16_t SBUS_MAX = 1695;
@@ -65,7 +65,7 @@ double map_to_range(double target_min, double target_max, double sbus_value) {
  * @param reverse [输入] 整型，0表示正向（phase为正），1表示反向（phase为负）。
  * @details 用于根据游动方向（正游或倒游）动态切换CPG的相位差，影响振荡器输出的时序关系。
  */
-void set_phase_direction(CPGState *state, int reverse) {
+void setPhaseDirection(CPG_State *state, int reverse) {
     if (reverse) {
         state->phase[0] = -0.25 * M_PI;
         state->phase[1] = -0.25 * M_PI;
@@ -82,15 +82,15 @@ void set_phase_direction(CPGState *state, int reverse) {
  *              使用SBUS通道2的数据，映射范围 (-5.5, 5.5)
  * @details 所有振荡器频率统一设置为 freq
  */
-void CPG_setFrequency(CPGState *state, double freq) {
+void CPG_setFrequency(CPG_State *state, double freq) {
     for (int i = 0; i < 3; i++) {
-        state->omega[i] = M_PI * fabs(map_to_range(-5.5, 5.5, freq)); // freq为Hz
+        state->omega[i] = M_PI * fabs(mapToRange(-5.5, 5.5, freq)); // freq为Hz
     }
     // req为负时调转相位为后退状态
     if (freq < 0) {
-        set_phase_direction(state, 1); // 假设存在后退相位常量
+        setPhaseDirection(state, 1); // 假设存在后退相位常量
     } else {
-        set_phase_direction(state, 0);  // 假设存在前进相位常量
+        setPhaseDirection(state, 0);  // 假设存在前进相位常量
     }
 }
 
@@ -101,9 +101,9 @@ void CPG_setFrequency(CPGState *state, double freq) {
  *              使用SBUS通道3的数据，映射范围 (-3, 3)
  * @details 根据g_motion_mode切换不同的运动模式（如直游、转弯、倒游等），并设置对应的偏置和相位方向。
  */
-void set_cpg_bias(CPGState *state, double bias) {
+void CPG_setBias(CPG_State *state, double bias) {
     for (int i = 0; i < 3; i++) {
-    state->bias[i] = map_to_range(-3.0, 3.0, bias);
+    state->bias[i] = mapToRange(-3.0, 3.0, bias);
     }
 }
 
@@ -115,7 +115,7 @@ void set_cpg_bias(CPGState *state, double bias) {
  * @details 根据Hopf振荡器模型和耦合关系，计算每个振荡器的状态变量微分，用于后续数值积分。
  *          通常不直接调用，由cpg_update间接调用。
  */
-void cpg_ode(CPGState *state, double *dx, double *dy) {
+void cpgODE(CPG_State *state, double *dx, double *dy) {
     // 准备一些必要的局部变量
     double bias[3];
     bias[0] = state->bias[0];
@@ -183,10 +183,10 @@ void cpg_ode(CPGState *state, double *dx, double *dy) {
  * @param dt [输入] 时间步长（单位：秒），用于积分计算。
  * @details 使用欧拉法对CPG状态进行一步积分，推进系统演化。每个主循环周期应调用一次。
  */
-void cpg_update(CPGState *state, double dt) {
+void CPG_update(CPG_State *state, double dt) {
     double dx[3];
     double dy[3];
-    cpg_ode(state, dx, dy);
+    cpgODE(state, dx, dy);
 
     // 状态变量按欧拉法积分
     for (int i = 0; i < 3; i++) {
@@ -202,7 +202,7 @@ void cpg_update(CPGState *state, double dt) {
  * @return double 映射后的舵机角度（范围约80~120，中心为100）。
  * @details 先将y_value限制在[-9,9]，再线性放大并偏移到舵机角度区间，便于直接用于舵机控制。
  */
-double map_to_servo(double y_value) {
+double CPG_mapAngleToServo(double y_value) {
     // 1. 限制CPG输出范围（论文式3-89：y∈[-9,9]）
     double y_clamped = (y_value < -9.0)? -9.0 : (y_value > 9.0)? 9.0 : y_value;
     // 2. 放大5倍（论文λ=10）→ [-90,90]
