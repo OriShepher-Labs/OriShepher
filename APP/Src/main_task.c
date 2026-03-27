@@ -56,7 +56,7 @@ void mainTask(void)
 // 主功能函数
 
 // 处理遥控器数据
-static void remoteDataProcess(void) {
+void remoteDataProcess(void) {
     //SBUS数据处理
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
@@ -82,7 +82,7 @@ static void remoteDataProcess(void) {
 // 调试信息与数据显示
 
 // 参数显示
-static void screenDataDisplay(void) {
+void screenDataDisplay(void) {
     // 显示舵机角度（取整显示）
     for (int i = 0; i < 3; i++) {
         // 舵机角度数据显示
@@ -102,7 +102,7 @@ static void screenDataDisplay(void) {
 }
 
 // 无遥控器数据提示
-static void screenNoDataDisplay() {
+void screenNoDataDisplay() {
     // SBUS帧未就绪，显示等待有效数据提示
     OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
     OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);

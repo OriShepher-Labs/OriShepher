@@ -21,9 +21,9 @@
 void mainTaskInit(void);
 void mainTask(void);
 
-static void remoteDataProcess(void);
-static void screenDataDisplay(void);
-static void screenNoDataDisplay(void);
+void remoteDataProcess(void);
+void screenDataDisplay(void);
+void screenNoDataDisplay(void);
 
 
 #endif
