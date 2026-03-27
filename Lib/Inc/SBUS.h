@@ -21,20 +21,19 @@
 */
 
 #include <stdint.h>
-#include "main.h"
-#include "oled_kk_simple.h"
+
 #include "usart.h"
+
+#include "oled.h"
 
 #define SBUS_RX_BUFFER_SIZE  	200  	// SBUS接收缓冲区大小（字节）
 #define SBUS_UART1_RX_ENABLE 	1		// 使能（1）/禁止（0）串口1接收
 #define SBUS_FRAME_LENGTH 		25  	// SBUS单帧数据长度（字节）
 
-extern uint8_t sbus_frame_buffer[SBUS_RX_BUFFER_SIZE];  // SBUS帧缓冲区
-extern uint8_t sbus_frame_ready;                 // SBUS帧就绪标志（单帧接收完毕）
-
+void SBUS_init(void);                    // 初始化SBUS接收
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
-void sbus_decode_channels(uint16_t* channels);  // 解码SBUS帧为6个通道值
-void sbus_clear_frame_buffer(void);              // 清空SBUS帧缓冲区
+void SBUS_decodeChannels(uint16_t* channels);  // 解码SBUS帧为6个通道值
+void SBUS_clearFrameBuffer(void);              // 清空SBUS帧缓冲区
 
 
 #endif

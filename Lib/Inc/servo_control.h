@@ -11,7 +11,7 @@ typedef enum {
     SERVO_4 = TIM_CHANNEL_4  // PB1
 } SERVO_ID;
 
-void Servo_Init(void);
-void Servo_SetAngle(SERVO_ID servo_id, float Angle);
+void Servo_init(void);
+void Servo_setAngle(SERVO_ID servo_id, float Angle);
 
 #endif

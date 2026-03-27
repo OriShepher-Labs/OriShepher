@@ -9,7 +9,7 @@
  * 图模也使用波特律动LED取模工具生成
  */
 // clang-format off
-#include "font_kk_simple.h"
+#include "font.h"
 
 // 8*6 ASCII
 const unsigned char ascii_8x6[][6] = {

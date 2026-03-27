@@ -1,14 +1,14 @@
 #include "servo_control.h"
 #include "tim.h"
 
-void Servo_Init(void){
+void Servo_init(void){
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); // PA6
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2); // PA7
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // PB0
     HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); // PB1
 }
 
-void Servo_SetAngle(SERVO_ID servo_id, float Angle)
+void Servo_setAngle(SERVO_ID servo_id, float Angle)
 {
     // 确保角度在有效范围内
     if (Angle < 0.0f) Angle = 0.0f;

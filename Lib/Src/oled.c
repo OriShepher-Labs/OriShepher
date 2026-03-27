@@ -21,7 +21,7 @@
  * 为保证中文显示正常 请将编译器的字符集设置为UTF-8
  *
  */
-#include "oled_kk_simple.h"
+#include "oled.h"
 #include "i2c.h"
 #include <math.h>
 #include <stdint.h>
@@ -71,7 +71,7 @@ void OLED_SendCmd(uint8_t cmd)
  * @brief 初始化OLED (SSD1306)
  * @note 此函数是移植本驱动时的重要函数 将本驱动库移植到其他驱动芯片时应根据实际情况修改此函数
  */
-void OLED_kk_Init(void)
+void OLED_init(void)
 {
   OLED_SendCmd(0xAE); /*关闭显示 display off*/
 
@@ -117,8 +117,8 @@ void OLED_kk_Init(void)
   OLED_SendCmd(0x8D);
   OLED_SendCmd(0x14);
 
-  OLED_NewFrame();
-  OLED_ShowFrame();
+  OLED_newFrame();
+  OLED_showFrame();
 
   OLED_SendCmd(0xAF); /*开启显示 display ON*/
 }
@@ -165,7 +165,7 @@ void OLED_SetColorMode(OLED_ColorMode mode)
 /**
  * @brief 清空显存 绘制新的一帧
  */
-void OLED_NewFrame(void)
+void OLED_newFrame(void)
 {
   memset(OLED_GRAM, 0, sizeof(OLED_GRAM));
 }
@@ -174,7 +174,7 @@ void OLED_NewFrame(void)
  * @brief 将当前显存显示到屏幕上
  * @note 此函数是移植本驱动时的重要函数 将本驱动库移植到其他驱动芯片时应根据实际情况修改此函数
  */
-void OLED_ShowFrame(void)
+void OLED_showFrame(void)
 {
   static uint8_t sendBuffer[OLED_COLUMN + 1];
   sendBuffer[0] = 0x40;
@@ -341,13 +341,13 @@ void OLED_SetBlock(uint8_t x, uint8_t y, const uint8_t *data, uint8_t w, uint8_t
 // ================================ 文字绘制 ================================
 
 // 计算字符的网格横坐标（每个字符占用6个像素）
-uint8_t x_line(uint8_t x)
+uint8_t xLine(uint8_t x)
 {
   return (x - 1) * 6 + 1;
 }
 
 // 计算字符的网格纵坐标（每个字符占用8个像素）
-uint8_t y_line(uint8_t y)
+uint8_t yLine(uint8_t y)
 {
   return (y - 1) * 8 + 1;
 }
@@ -374,12 +374,12 @@ void OLED_PrintASCIIChar(uint8_t x, uint8_t y, char ch, const ASCIIFont *font, O
  * @param font 字体
  * @param color 颜色
  */
-void OLED_PrintASCIIString(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_printString(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
 {
-  uint8_t x0 = x_line(x);
+  uint8_t x0 = xLine(x);
   while (*str)
   {
-    OLED_PrintASCIIChar(x0, y_line(y), *str, font, color);
+    OLED_PrintASCIIChar(x0, yLine(y), *str, font, color);
     x0 += font->w;
     str++;
   }
@@ -393,10 +393,10 @@ void OLED_PrintASCIIString(uint8_t x, uint8_t y, char *str, const ASCIIFont *fon
  * @param font 字体
  * @param color 颜色
  */
-void OLED_PrintASCIIStringAutoEnter(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_printStringAutoEnter(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
 {
-  uint8_t x0 = x_line(x);
-  uint8_t y0 = y_line(y);
+  uint8_t x0 = xLine(x);
+  uint8_t y0 = yLine(y);
   uint8_t max_x = OLED_COLUMN - font->w; // 计算最大x坐标
   
   while (*str) {
@@ -429,10 +429,10 @@ void OLED_PrintASCIIStringAutoEnter(uint8_t x, uint8_t y, char *str, const ASCII
  * @param font 字体
  * @param color 颜色
  */
-void OLED_PrintASCIIStringAutoEnterFullWords(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_printStringAutoEnterFullWords(uint8_t x, uint8_t y, char *str, const ASCIIFont *font, OLED_ColorMode color)
 {
-  uint8_t x0 = x_line(x);
-  uint8_t y0 = y_line(y);
+  uint8_t x0 = xLine(x);
+  uint8_t y0 = yLine(y);
   uint8_t max_x = OLED_COLUMN - font->w; // 计算最大x坐标
   char *word_start = str; // 当前单词起始位置
   uint8_t word_width = 0; // 当前单词宽度
@@ -498,15 +498,15 @@ void OLED_PrintASCIIStringAutoEnterFullWords(uint8_t x, uint8_t y, char *str, co
  * @param font 字体
  * @param color 颜色
  */
-void OLED_Print_u8_Num(uint8_t x, uint8_t y, uint8_t *num, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_print_uint8(uint8_t x, uint8_t y, uint8_t *num, const ASCIIFont *font, OLED_ColorMode color)
 {
   char str[4];
   sprintf(str, "%d", (int)*num);
   
-  uint8_t x0 = x_line(x);
+  uint8_t x0 = xLine(x);
   char *p = str; // 使用临时指针指向字符数组
   while (*p) {  // 遍历临时指针
-    OLED_PrintASCIIChar(x0, y_line(y), *p, font, color);
+    OLED_PrintASCIIChar(x0, yLine(y), *p, font, color);
     x0 += font->w;
     p++;         // 自增临时指针，而不是数组名
   }
@@ -520,15 +520,15 @@ void OLED_Print_u8_Num(uint8_t x, uint8_t y, uint8_t *num, const ASCIIFont *font
  * @param font 字体
  * @param color 颜色
  */
-void OLED_Print_u16_Num(uint8_t x, uint8_t y, uint16_t *num, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_print_uint16(uint8_t x, uint8_t y, uint16_t *num, const ASCIIFont *font, OLED_ColorMode color)
 {
   char str[6];
   sprintf(str, "%d", (int)*num);
   
-  uint8_t x0 = x_line(x);
+  uint8_t x0 = xLine(x);
   char *p = str; // 使用临时指针指向字符数组
   while (*p) {  // 遍历临时指针
-    OLED_PrintASCIIChar(x0, y_line(y), *p, font, color);
+    OLED_PrintASCIIChar(x0, yLine(y), *p, font, color);
     x0 += font->w;
     p++;         // 自增临时指针，而不是数组名
   }
@@ -543,7 +543,7 @@ void OLED_Print_u16_Num(uint8_t x, uint8_t y, uint16_t *num, const ASCIIFont *fo
  * @param font 字体
  * @param color 颜色
  */
-void OLED_PrintFloat(uint8_t x, uint8_t y, double num, uint8_t precision, const ASCIIFont *font, OLED_ColorMode color)
+void OLED_printFloat(uint8_t x, uint8_t y, double num, uint8_t precision, const ASCIIFont *font, OLED_ColorMode color)
 {
     char str[32];
     int integer_part;
@@ -626,10 +626,10 @@ void OLED_PrintFloat(uint8_t x, uint8_t y, double num, uint8_t precision, const 
     str[index] = '\0'; // 结束符
     
     // 显示字符串
-    uint8_t x0 = x_line(x);
+    uint8_t x0 = xLine(x);
     char *p = str;
     while (*p) {
-        OLED_PrintASCIIChar(x0, y_line(y), *p, font, color);
+        OLED_PrintASCIIChar(x0, yLine(y), *p, font, color);
         x0 += font->w;
         p++;
     }

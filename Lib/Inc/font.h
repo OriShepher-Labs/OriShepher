@@ -1,7 +1,9 @@
 #ifndef __FONT_KK_SIMPLE_H__
 #define __FONT_KK_SIMPLE_H__
+
 #include "stdint.h"
 #include "string.h"
+
 typedef struct ASCIIFont {
   uint8_t h;
   uint8_t w;

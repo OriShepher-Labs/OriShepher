@@ -1,15 +1,21 @@
 #include "SBUS.h"  
 
 // SBUS接收缓冲区
-uint8_t sbus_frame_buffer[SBUS_RX_BUFFER_SIZE];
+static uint8_t sbus_frame_buffer[SBUS_RX_BUFFER_SIZE];
 // SBUS接收字节计数器
-uint8_t sbus_byte_count = 0;
+static uint8_t sbus_byte_count = 0;
 // SBUS帧同步标志
-uint8_t sbus_frame_synced = 0;
+static uint8_t sbus_frame_synced = 0;
 // SBUS帧就绪标志
-uint8_t sbus_frame_ready = 0;
+uint8_t g_sbus_frame_ready = 0;
 // UART接收中断dummy字节（必须保留以维持中断机制）
-uint8_t sbus_rx_dummy_byte = 0;
+uint8_t g_sbus_rx_dummy_byte = 0;
+
+void SBUS_init(void) {
+    // 启动UART1中断接收（遥控器SBUS数据信号）,否则无法接收数据
+    HAL_UART_Receive_IT(&huart1, &g_sbus_rx_dummy_byte, 1);
+
+}
 
 /**
  * @brief UART接收完成中断回调函数
@@ -41,7 +47,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
                 // 检查是否接收完一帧数据
                 if(sbus_byte_count == SBUS_FRAME_LENGTH) {
                     // 帧接收完成，设置就绪标志
-                    sbus_frame_ready = 1;
+                    g_sbus_frame_ready = 1;
                     sbus_frame_synced = 0;           // 准备接收下一帧
                 }
             } else {
@@ -52,7 +58,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
         }
         
         // 重启接收中断（继续接收下一个字节）
-        HAL_UART_Receive_IT(&huart1, &sbus_rx_dummy_byte, 1);
+        HAL_UART_Receive_IT(&huart1, &g_sbus_rx_dummy_byte, 1);
     }
 }
 
@@ -76,7 +82,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
  * - CH5: 字节[6:7] bits[2:0] + bits[7:4]
  * - CH6: 字节[7:9] bits[8:0] + bits[7] + bits[1:0]
  */
-void sbus_decode_channels(uint16_t* channels)
+void SBUS_decodeChannels(uint16_t* channels)
 {
     // 【第一步】验证帧的有效性（检查帧尾字节）
     if (sbus_frame_buffer[SBUS_FRAME_LENGTH - 1] != 0x00 && sbus_frame_buffer[SBUS_FRAME_LENGTH - 1] != 0x04) {
@@ -135,7 +141,7 @@ void sbus_decode_channels(uint16_t* channels)
  * 
  * @note 用于初始化或错误恢复时清空缓冲区中的旧数据
  */
-void sbus_clear_frame_buffer(void)
+void SBUS_clearFrameBuffer(void)
 {
     // 遍历整个缓冲区，逐字节清空为0
     for(uint8_t i = 0; i < SBUS_FRAME_LENGTH; i++){
