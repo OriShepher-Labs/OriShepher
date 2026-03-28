@@ -1,23 +1,24 @@
 #ifndef CPG_ALGORITHM_H
 #define CPG_ALGORITHM_H
 
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <math.h>
+#include <stdbool.h>
 
 #include "other_functions.h"
 
 // 定义CPG状态结构体，用于存储CPG算法的状态变量
 typedef struct {
-    double t;               // 时间
-    double x[3];            // 状态变量x1-x3
-    double y[3];            // 状态变量y1-y3（输出相关）
-    double omega[5];        // 频率
-    double amplitude[3];    // 幅值
-    double bias[3];         // 偏置量
-    double k;               // 收敛因子
-    double coupling[3][2];  // 耦合权重
-    double phase[2];        // 相位差
+    float t;               // 时间
+    float x[3];            // 状态变量x1-x3
+    float y[3];            // 状态变量y1-y3（输出相关）
+    float omega[5];        // 频率
+    float amplitude[3];    // 幅值
+    float bias[3];         // 偏置量
+    float k;               // 收敛因子
+    float coupling[3][2];  // 耦合权重
+    float phase[2];        // 相位差
 } CPG_State;
 
 /**
@@ -50,8 +51,9 @@ void CPG_setFrequency(CPG_State *state, double freq);
  * @param state [输入/输出] 指向CPG_State结构体的指针
  * @param bias [输入] 单个偏置值（不再是指针）
  *              使用SBUS通道3的数据，映射范围 (-3, 3)
+ * @param need_mapping [输入] 是否需要映射到范围[-3.0, 3.0]，true表示需要映射，false表示直接赋值
  */
-void CPG_setBias(CPG_State *state, double bias);
+void CPG_setBias(CPG_State *state, double bias, bool need_mapping);
 
 /**
  * @brief 计算CPG微分方程（Hopf振荡器） ODE:常微分方程

@@ -31,38 +31,40 @@ const float RB =  3.0f; // 右大转   right big
 static const float rule_table[3][3][3] = {
     {// 左近 [0][][]
         {// 中近 [0][0][]
-            LB, LB, LB,  // 右: 近,中,远 -> 左大转
+            RB, RB, RB,  // 右: 近,中,远 -> 左大转
         },
         {// 中中 [0][1][]
-            LB, LS, LS,  // 右: 近,中,远 -> 左大转/左小转/左小转
+            RB, RB, RS,  // 右: 近,中,远 -> 左大转/左小转/左小转
         },
         {// 中远 [0][2][]
-            LB, LS, FW,  // 右: 近,中,远 -> 左大转/左小转/直行
+            FW, RS, RS,  // 右: 近,中,远 -> 左大转/左小转/直行
         }
     },
     {// 左中 [1][][]
         {// 中近 [1][0][]
-            LB, LS, LS,  // 右: 近,中,远 -> 左大转/左小转/左小转
+            LB, RB, RB,  // 右: 近,中,远 -> 左大转/左小转/左小转
         },
         {// 中中 [1][1][]
-            LS, FW, RS,  // 右: 近,中,远 -> 左小转/直行/右小转
+            LB, RB, RS,  // 右: 近,中,远 -> 左小转/直行/右小转
         },
         {// 中远 [1][2][]
-            LS, RS, RB,  // 右: 近,中,远 -> 左小转/右小转/右大转
+            LS, FW, RS,  // 右: 近,中,远 -> 左小转/右小转/右大转
         }
     },
     {// 左远 [2][][]
         {// 中近 [2][0][]
-            LS, FW, RS,  // 右: 近,中,远 -> 左小转/直行/右小转
+            LB, LB, RB,  // 右: 近,中,远 -> 左小转/直行/右小转
         },
         {// 中中 [2][1][]
-            RS, FW, RB,  // 右: 近,中,远 -> 右小转/直行/右大转
+            LS, LS, RS,  // 右: 近,中,远 -> 右小转/直行/右大转
         },
         {// 中远 [2][2][]
-            RB, RB, FW,  // 右: 近,中,远 -> 右大转/右大转/直行
+            LB, LS, FW,  // 右: 近,中,远 -> 右大转/右大转/直行
         }
     }
 };
+
+float g_fuzzy_result;
 
 // 规则推理结果
 static float sum_numerator, sum_denominator;
@@ -198,7 +200,7 @@ float Fuzzy_update(float dist_l, float dist_m, float dist_r) {
     // 步骤2：执行规则推理，计算总分子和总分母
     Fuzzy_ruleInference();
     // 步骤3：执行去模糊化并返回最终偏置
-    float result = Fuzzy_defuzzify();
+    g_fuzzy_result = Fuzzy_defuzzify();
     
-    return result;
+    return g_fuzzy_result;
 }
