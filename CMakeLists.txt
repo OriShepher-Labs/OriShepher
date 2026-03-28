@@ -48,6 +48,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # 源文件路径(.c)
     APP/Src/main_task.c
     Lib/Src/cpg_algorithm.c
+    Lib/Src/fuzzy_control.c
     Lib/Src/font.c
     Lib/Src/oled.c
     Lib/Src/SBUS.c
