@@ -69,10 +69,10 @@ void remoteDataProcess(void) {
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
     
-    // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
+    // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State的相关参数
     CPG_setFrequency(&cpg_State, sbus_channels[2]);    // CH3控制速度
     CPG_setBias(&cpg_State, sbus_channels[3], true);         // CH4控制偏置
-    // 根据cpg_State的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
+    // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
     // 从cpg_State提取CPG最终角度数据，然后映射为舵机角度
@@ -88,9 +88,9 @@ void remoteDataProcess(void) {
 
 // 执行模糊控制
 void fuzzyControl(void) {
-    // dist_left += randomDistance(-2, 2);
-    // dist_middle += randomDistance(-2, 2);
-    // dist_right += randomDistance(-2, 2);
+    // dist_left += randomDistanceGenerator(-2, 2);
+    // dist_middle += randomDistanceGenerator(-2, 2);
+    // dist_right += randomDistanceGenerator(-2, 2);
 
     if(dist_left < 150) dist_left += 1;
     if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
@@ -112,9 +112,9 @@ void fuzzyControl(void) {
 // 参数显示
 void screenDataDisplay(void) {
     // 显示舵机角度（取整显示）
+    char servo_label[5];  // 四个舵机ID标签数组
     for (int i = 0; i < 3; i++) {
         // 舵机角度数据显示
-        char servo_label[5];
         sprintf(servo_label, "S%d:", i + 1);
         OLED_printString(1, i + 1, servo_label, &afont8x6, OLED_COLOR_NORMAL);
         OLED_printFloat(4, i + 1, servo_angles[i], 0, &afont8x6, OLED_COLOR_NORMAL);
@@ -143,7 +143,7 @@ void fuzzyControlModDisplay() {
 }
 
 // 距离数据随机生成
-float randomDistance(float min, float max) {
+float randomDistanceGenerator(float min, float max) {
     int range = (int)(max - min);
     return min + (float)(rand() % (range + 1));
 }
