@@ -75,11 +75,18 @@ void CPG_setFrequency(CPG_State *state, double freq) {
  * @param state [输入/输出] 指向CPG_State结构体的指针，函数可能会调用set_phase_direction修改其相位。
  * @param bias [输出] 指向长度为3的double数组，函数将填充各振荡器的偏置量。
  *              使用SBUS通道3的数据，映射范围 (-3, 3)
+ * @param need_mapping [输入] 是否需要映射到范围[-3.0, 3.0]，true表示需要映射，false表示直接赋值
  * @details 根据g_motion_mode切换不同的运动模式（如直游、转弯、倒游等），并设置对应的偏置和相位方向。
  */
-void CPG_setBias(CPG_State *state, double bias) {
-    for (int i = 0; i < 3; i++) {
-    state->bias[i] = OF_mapToRange(-3.0, 3.0, bias);
+void CPG_setBias(CPG_State *state, double bias, bool need_mapping) {
+    if (need_mapping) {
+        for (int i = 0; i < 3; i++) {
+        state->bias[i] = OF_mapToRange(-3.0, 3.0, bias);
+        }
+    } else {
+        for (int i = 0; i < 3; i++) {
+        state->bias[i] = bias;
+        }
     }
 }
 

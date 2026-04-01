@@ -1,8 +1,4 @@
-# OriShepher-Core仓库说明
-
 使用HAL库开发。
-
-名字是乱起的……Origami Shepherd。
 
 ### [分支(Branches)](https://github.com/OriShepher-Labs/OriShepher-Core/branches)说明
 
@@ -25,14 +21,17 @@
 ### [拉取请求](https://github.com/OriShepher-Labs/OriShepher-Core/pulls)(Pull Request)规范
 
 1. 提交拉取请求前先拉取 [`develop`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/develop) 的最新代码，解决所有代码冲突后，再提交拉取请求合并到 [`develop`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/develop)。
-2. 可以在开发完成前先提交**拉取请求草案(Pull request as draft)** ，来得到成员的检查和讨论，期间仍可进行提交和修改，当一切就绪后再转为拉取请求(Ready for review)。
+2. 可以在开发完成前先提交**拉取请求草案(Pull request as draft)** ，来得到成员的检查和讨论，期间仍可正常进行提交和修改，参与讨论的成员会在请求提交者提交新的commit或有新的讨论消息时收到通知，当一切就绪后再转为准备审核(Ready for review)。
 3. 由 `feature-xxx` 发起的拉取请求需有除自己外的其他**至少 1 名成员(除自己)审查**后，才允许合并到 [`develop`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/develop)。
 4. 大版本更新时，轮流指定一人，由 [`develop`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/develop) 提交拉取请求到 [`main`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/main)，需要**所有成员的审查**后，才允许合并到 [`main`](https://github.com/OriShepher-Labs/OriShepher-Core/tree/main)。
-5. 拉取请求通过后，如此分支暂无后续开发计划可以关闭/删除此 `feature-xxx`分支。
+5. 由于仓库是私有仓库且没氪金，分支保护和拉取请求规则无法生效，规范全靠大家自觉遵守。
+6. 拉取请求通过后，如该分支暂无后续开发计划可以选择关闭/删除此 `feature-xxx` 分支。
 
 ### 开发规范
 
-开发时请尽量按照我们建议的命名方式和代码格式进行开发，包括函数、变量名、提交信息等等。相关规范参考文件在项目的`docs\命名规范.md`中。
+开发时请尽量按照我们建议的命名方式和代码格式进行开发，包括函数、变量名、提交信息等等。相关规范参考文件在项目的[`docs\STYLE_RULES.md`](STYLE_RULES.md)中。
+
+可以在提交(commit)和拉取请求(pull request)的提交信息中使用中文，看得懂就行。
 
 当然这个规范其实也是不够规范的（专业）。
 
@@ -42,14 +41,10 @@
 
 不知道什么是分支？不知道什么是拉取请求？不会用 Github？可以到哔哩哔哩或询问 AI 学习。
 
-这个仓库是私有的，不开源，只是方便管理和同步代码，请不要未经所有核心贡献者同意的情况下往开源仓库上传项目核心代码。
-
-[`OriShepher`](https://github.com/OriShepher-Labs/OriShepher) 仓库才是用于开源和展示(占坑、证明)的仓库，预计未来会上传项目的自定义库程序头文件等非核心文件用于展示本项目。其他私有仓库只是用于开发和测试。以此方法来保证我们的成果得到展示和证明且不易被窃取。当然，未来可能会改变主意。
-
 项目使用[Apache-2.0 许可证](https://github.com/OriShepher-Labs/OriShepher-Core?tab=Apache-2.0-1-ov-file#)。
 
 GitHub仍有许多有趣的功能等待我们去发现……
 
 ---
 
-<span data-type="text" style="color: var(--b3-font-color5);">所有的说明和规范都尚未完善，它们应在我们的共同讨论中被持续改进……</span>
+<span data-type="text" style="color: var(--b3-font-color5); --darkreader-inline-color: var(--darkreader-text--b3-font-color5, var(--darkreader-text-000000, #ffffff));">所有的说明和规范都尚未完善，它们应在我们的共同讨论中被持续改进……</span>
