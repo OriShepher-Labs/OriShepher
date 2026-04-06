@@ -29,6 +29,8 @@ void fuzzyControl(void);
 void screenDataDisplay(void);
 void fuzzyControlModDisplay(void);
 float randomDistanceGenerator(float min, float max);
+void fuzzyTestProcess(void);
+
 
 
 #endif
