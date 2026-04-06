@@ -54,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Lib/Src/SBUS.c
     Lib/Src/servo_control.c
     Lib/Src/other_functions.c
+    Lib/Src/ultrasonic.c
 )
 
 # Add include paths
