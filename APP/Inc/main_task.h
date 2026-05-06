@@ -19,7 +19,6 @@
 #include "servo_control.h"
 #include "SBUS.h"
 #include "other_functions.h"
-#include "ultrasonic.h"
 
 void mainTaskInit(void);
 void mainTask(void);
@@ -29,8 +28,8 @@ void fuzzyControl(void);
 
 void screenDataDisplay(void);
 void fuzzyControlModDisplay(void);
-// float randomDistanceGenerator(float min, float max); // 已移除，使用实际超声波数据
-// void fuzzyTestProcess(void); // 已移除，使用实际超声波数据
+float randomDistanceGenerator(float min, float max);
+void fuzzyTestProcess(void);
 
 
 
