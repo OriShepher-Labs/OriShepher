@@ -21,10 +21,6 @@ static double servo_angles[3];        // 舵机角度数组
 // extern float dist_left, dist_middle, dist_right;    // FC距离数据 (已移除，使用 Ultrasonic_Distance_t)
 extern float g_fuzzy_result;          // 模糊控制结果数据
 
-// 超声波
-static uint32_t last_ultrasonic_read = 0;
-uint32_t current_time;
-
 // 测试变量 (已移除，使用实际超声波数据)
 // static int test_process = 0;
 
@@ -48,6 +44,8 @@ void mainTaskInit(void)
 // 主任务
 void mainTask(void)
 {
+    Ultrasonic_Process(); // 处理超声波异步读取状态机
+
     // SBUS帧已就绪，人工接管
     if(g_sbus_frame_ready){       // SBUS帧接收完毕且数据有效
         g_sbus_frame_ready = 0;   // 清除就绪标志
@@ -95,26 +93,21 @@ void remoteDataProcess(void) {
 
 // 执行模糊控制
 void fuzzyControl(void) {
-    // 处理超声波异步读取状态机 返回1表示本次完成了一次完整的三传感器测距
-    Ultrasonic_Process();
-    last_ultrasonic_read = 0;
-    current_time = HAL_GetTick();
+    static uint32_t last_ultrasonic_read = 0;
+    uint32_t current_time = HAL_GetTick();
 
-    // 当超声波模块已准备好（状态机回到idle）且距离上次启动超过500ms时，启动下一次读取
-    // Ultrasonic_IsReadyForNext() 返回1表示状态机处于 idle 状态，可以安全启动新读取
-    if (Ultrasonic_IsReadyForNext() && (current_time - last_ultrasonic_read > 500)) {
+    // 每500ms启动一次超声波读取
+    if (current_time - last_ultrasonic_read > 500) {
         Ultrasonic_StartRead();
         last_ultrasonic_read = current_time;
     }
 
-    // 获取最新的距离数据（如果已完成读取）
-    Ultrasonic_Distance_t dist = {0, 0, 0}; // 默认值初始化，防止使用未初始化的数据
+    Ultrasonic_Distance_t dist = {0, 0, 0}; // 默认值
     if (Ultrasonic_IsReadComplete()) {
-        Ultrasonic_GetDistances(&dist); // 获取缓存的距离数据
+        Ultrasonic_GetDistances(&dist);
     }
 
     CPG_setFrequency(&cpg_State, 1400);  // 默认速度
-    // 将实际超声波测得的距离值传入模糊控制系统
     CPG_setBias(&cpg_State, Fuzzy_update(dist.left, dist.middle, dist.right), false);
     // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
@@ -123,7 +116,7 @@ void fuzzyControl(void) {
     for (int i = 0; i < 3; i++) {
         servo_angles[i] = CPG_mapAngleToServo(cpg_State.y[i]);
     }
-    // 应用舵机角度控制
+    // 应用舵机角度
     for (int i = 0; i < 3; i++) {
         Servo_setAngle(servo_ids[i], servo_angles[i]); // 分别设定3个舵机
     }
@@ -158,19 +151,13 @@ void fuzzyControlModDisplay() {
     // OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
     // OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
     OLED_printString(1, 1, "Fuzzy Control mode", &afont8x6, OLED_COLOR_NORMAL);
-    
-    // 获取最新的距离数据（仅在完成读取后获取）
-    Ultrasonic_Distance_t dist = {0, 0, 0}; // 默认值初始化
+    Ultrasonic_Distance_t dist = {0, 0, 0}; // 默认值
     if (Ultrasonic_IsReadComplete()) {
-        Ultrasonic_GetDistances(&dist); // 获取缓存的距离数据
+        Ultrasonic_GetDistances(&dist);
     }
-    
-    // 显示三个超声波传感器的距离值
-    OLED_printFloat(1, 2, dist.left, 0, &afont8x6, OLED_COLOR_NORMAL);      // 显示左传感器距离
-    OLED_printFloat(5, 2, dist.middle, 0, &afont8x6, OLED_COLOR_NORMAL);    // 显示中间传感器距离
-    OLED_printFloat(10, 2, dist.right, 0, &afont8x6, OLED_COLOR_NORMAL);    // 显示右传感器距离
-    
-    // 显示CPG偏置和模糊控制结果
+    OLED_printFloat(1, 2, dist.left, 0, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(5, 2, dist.middle, 0, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(10, 2, dist.right, 0, &afont8x6, OLED_COLOR_NORMAL);
     OLED_printFloat(1, 3, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
     OLED_printFloat(8, 3, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
 }

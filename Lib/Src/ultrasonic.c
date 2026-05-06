@@ -20,13 +20,11 @@ uint32_t state_start_time = 0;
 /**
  * @brief 微秒级延时函数
  * @param us 延时时间 (微秒)
- * @note STM32F1 无 DWT，使用简单循环实现。需要在 O0/O1 下测试校准。
+ * @note STM32F1 无 DWT，使用循环近似实现。72MHz 时钟下调整系数。
  */
 void delay_us(uint32_t us) {
-    volatile uint32_t count = us * 8;
-    while (count--) {
-        __NOP();
-    }
+    volatile uint32_t count = us * 7; // 粗略调整，实际需根据时钟频率校准
+    while (count--) {}
 }
 
 /**
@@ -100,21 +98,10 @@ void Ultrasonic_GetDistances(Ultrasonic_Distance_t *distances) {
 }
 
 /**
- * @brief 检查是否准备好执行下一次测距
- * @return 1=准备好（状态机在idle), 0=正在进行中
- * @note 当返回1时，可以安全地调用 Ultrasonic_StartRead() 启动新的一轮测距
- */
-uint8_t Ultrasonic_IsReadyForNext(void) {
-    return (read_state == 0) ? 1 : 0;
-}
-
-/**
  * @brief 异步读取状态机处理函数
- * @return 1=本次完成了一次完整的三传感器测距, 0=读取进行中
  * @note 在主循环中频繁调用此函数以推进读取过程
- *       当返回1时，表示一整套三个传感器的测距已完成，可以准备下一次测距
  */
-uint8_t Ultrasonic_Process(void) {
+void Ultrasonic_Process(void) {
     uint32_t current_time = HAL_GetTick();
 
     switch (read_state) {
@@ -124,63 +111,50 @@ uint8_t Ultrasonic_Process(void) {
             state_start_time = current_time;
             break;
 
-        case 2: // 等待传感器0完成
+        case 2: // 等待传感器0完成 (30ms间隔)
             if (echo_captured[0] >= 2 || (current_time - state_start_time) > 50) {
                 read_state = 3;
                 state_start_time = current_time;
             }
             break;
 
-        case 3: // 传感器0测量完成后等待 50ms 再触发传感器1
-            if ((current_time - state_start_time) >= 50) {
-                read_state = 4;
-            }
-            break;
-
-        case 4: // 触发传感器1
+        case 3: // 触发传感器1
             Ultrasonic_triggerSensor(1);
-            read_state = 5;
+            read_state = 4;
             state_start_time = current_time;
             break;
 
-        case 5: // 等待传感器1完成
+        case 4: // 等待传感器1完成
             if (echo_captured[1] >= 2 || (current_time - state_start_time) > 50) {
-                read_state = 6;
+                read_state = 5;
                 state_start_time = current_time;
             }
             break;
 
-        case 6: // 传感器1测量完成后等待 50ms 再触发传感器2
-            if ((current_time - state_start_time) >= 50) {
-                read_state = 7;
-            }
-            break;
-
-        case 7: // 触发传感器2
+        case 5: // 触发传感器2
             Ultrasonic_triggerSensor(2);
-            read_state = 8;
+            read_state = 6;
             state_start_time = current_time;
             break;
 
-        case 8: // 等待传感器2完成
+        case 6: // 等待传感器2完成
             if (echo_captured[2] >= 2 || (current_time - state_start_time) > 50) {
-                read_state = 9;
+                read_state = 7;
+                state_start_time = current_time;
             }
             break;
 
-        case 9: // 完成，填充缓存并标记为一次完整读取
-            ultrasonic_distances.left = dist1;      // 左侧传感器距离
-            ultrasonic_distances.middle = dist2;    // 中间传感器距离
-            ultrasonic_distances.right = dist3;     // 右侧传感器距离
-            ultrasonic_data_ready = 1;              // 标记数据已准备好
-            read_state = 0;                         // 返回 idle 状态
-            return 1;                               // 返回1表示本次已完成一次完整读取
+        case 7: // 完成，填充缓存
+            ultrasonic_distances.left = dist1;
+            ultrasonic_distances.middle = dist2;
+            ultrasonic_distances.right = dist3;
+            ultrasonic_data_ready = 1;
+            read_state = 0; // 返回idle
+            break;
 
         default:
             break;
     }
-    
-    return 0; // 返回0表示读取进行中
 }
 
 /**

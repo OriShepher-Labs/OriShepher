@@ -15,11 +15,10 @@ extern Ultrasonic_Distance_t ultrasonic_distances; // 缓存的距离数据
 extern volatile uint8_t ultrasonic_data_ready;     // 数据是否准备好标志
 
 // 模块接口函数
-void Ultrasonic_Init(void);                                     // 初始化超声波模块
-void Ultrasonic_StartRead(void);                                // 启动异步距离读取
-uint8_t Ultrasonic_IsReadComplete(void);                        // 检查读取是否完成
+void Ultrasonic_Init(void);                                    // 初始化超声波模块
+void Ultrasonic_StartRead(void);                               // 启动异步距离读取
+uint8_t Ultrasonic_IsReadComplete(void);                       // 检查读取是否完成
 void Ultrasonic_GetDistances(Ultrasonic_Distance_t *distances); // 获取缓存的距离数据
-uint8_t Ultrasonic_IsReadyForNext(void);                        // 检查是否准备好执行下一次测距
-uint8_t Ultrasonic_Process(void);                              // 异步读取状态机处理，返回本次是否完成一次完整读取（在主循环中调用）
+void Ultrasonic_Process(void);                                 // 异步读取状态机处理（在主循环中调用）
 
 #endif
