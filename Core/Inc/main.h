@@ -57,6 +57,36 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Echo_R_Pin GPIO_PIN_0
+#define Echo_R_GPIO_Port GPIOA
+#define Echo_M_Pin GPIO_PIN_1
+#define Echo_M_GPIO_Port GPIOA
+#define Echo_L_Pin GPIO_PIN_2
+#define Echo_L_GPIO_Port GPIOA
+#define Trig_L_Pin GPIO_PIN_3
+#define Trig_L_GPIO_Port GPIOA
+#define POWER_READ_Pin GPIO_PIN_4
+#define POWER_READ_GPIO_Port GPIOA
+#define Trig_M_Pin GPIO_PIN_5
+#define Trig_M_GPIO_Port GPIOA
+#define Servo_1_Pin GPIO_PIN_6
+#define Servo_1_GPIO_Port GPIOA
+#define Servo_2_Pin GPIO_PIN_7
+#define Servo_2_GPIO_Port GPIOA
+#define Servo_3_Pin GPIO_PIN_0
+#define Servo_3_GPIO_Port GPIOB
+#define Servo__Pin GPIO_PIN_1
+#define Servo__GPIO_Port GPIOB
+#define Trig_R_Pin GPIO_PIN_2
+#define Trig_R_GPIO_Port GPIOB
+#define RC_TX_Pin GPIO_PIN_9
+#define RC_TX_GPIO_Port GPIOA
+#define RC_RX_Pin GPIO_PIN_10
+#define RC_RX_GPIO_Port GPIOA
+#define OLED_SCL_Pin GPIO_PIN_8
+#define OLED_SCL_GPIO_Port GPIOB
+#define OLED_SDA_Pin GPIO_PIN_9
+#define OLED_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

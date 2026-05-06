@@ -1,8 +1,4 @@
 #include "main_task.h"
-#include "font.h"
-#include "oled.h"
-
-
 // -------------------------------------------------
 
 // static 声明的变量/函数只能在当前文件中使用，不能在其他文件中访问
@@ -17,6 +13,9 @@ static double dt = 0.01;              // CPG单位时间步长，用于计算每
 // 舵机 
 static SERVO_ID servo_ids[3] = {SERVO_1, SERVO_2, SERVO_3}; // 舵机ID数组
 static double servo_angles[3];        // 舵机角度数组
+// 超声测距
+Ultrasonic_Distance_t distances; // = Ultrasonic_getDistance();
+int8_t current_sensor; // = Ultrasonic_getCurrentMeasuringSensor();
 // FC
 extern float dist_left, dist_middle, dist_right;    // FC距离数据
 extern float g_fuzzy_result;          // 模糊控制结果数据
@@ -34,7 +33,8 @@ void mainTaskInit(void)
     Servo_init();
     CPG_init(&cpg_State);
     SBUS_init();
-    // HAL_Delay(100);
+    HAL_TIM_Base_Start(&htim2);
+    Ultrasonic_init();
 }
 
 // -------------------------------------------------
@@ -47,14 +47,13 @@ void mainTask(void)
     if(g_sbus_frame_ready){       // SBUS帧接收完毕且数据有效
         g_sbus_frame_ready = 0;   // 清除就绪标志
         // 处理遥控器数据
-        remoteDataProcess();
+        remoteControl();
         // 显示数据
-        screenDataDisplay();
+        remoteControlDataDisplay();
     } else {
         // 无遥控器数据，切换到模糊控制模式
         fuzzyControl();
-        fuzzyControlModDisplay();
-        HAL_Delay(100);
+        fuzzyControlDataDisplay();
     }
     OF_runningSign(1000); // 运行状态指示动画
     OLED_showFrame(); // 显示帧
@@ -65,7 +64,7 @@ void mainTask(void)
 // 主功能函数
 
 // 处理遥控器数据
-void remoteDataProcess(void) {
+void remoteControl(void) {
     //SBUS数据处理
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
@@ -91,6 +90,7 @@ void remoteDataProcess(void) {
 // 执行模糊控制
 void fuzzyControl(void) {
     fuzzyTestProcess();
+    distances = Ultrasonic_getDistance();
     CPG_setFrequency(&cpg_State, 1400);    // 默认速度
     CPG_setBias(&cpg_State, Fuzzy_update(dist_left, dist_middle, dist_right), false);
     // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
@@ -110,7 +110,7 @@ void fuzzyControl(void) {
 // 调试信息与数据显示
 
 // 参数显示
-void screenDataDisplay(void) {
+void remoteControlDataDisplay(void) {
     // 显示舵机角度（取整显示）
     char servo_label[5];  // 四个舵机ID标签数组
     for (int i = 0; i < 3; i++) {
@@ -130,7 +130,7 @@ void screenDataDisplay(void) {
 }
 
 // 无遥控器数据提示
-void fuzzyControlModDisplay() {
+void fuzzyControlDataDisplay() {
     // SBUS帧未就绪，显示等待有效数据提示
     // OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
     // OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
