@@ -21,7 +21,7 @@ extern float dist_left, dist_middle, dist_right;    // FC距离数据
 extern float g_fuzzy_result;          // 模糊控制结果数据
 
 // 测试变量
-static int test_process = 0;
+// static int test_process = 0;
 
 // -------------------------------------------------
 
@@ -89,10 +89,10 @@ void remoteControl(void) {
 
 // 执行模糊控制
 void fuzzyControl(void) {
-    fuzzyTestProcess();
+    // fuzzyTestProcess();
     distances = Ultrasonic_getDistance();
     CPG_setFrequency(&cpg_State, 1400);    // 默认速度
-    CPG_setBias(&cpg_State, Fuzzy_update(dist_left, dist_middle, dist_right), false);
+    CPG_setBias(&cpg_State, Fuzzy_update(distances.left, distances.middle, distances.right), false);
     // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
@@ -135,59 +135,59 @@ void fuzzyControlDataDisplay() {
     // OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
     // OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
     OLED_printString(1, 1, "Fuzzy Control mode", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(1, 2, dist_left, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(5, 2, dist_middle, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 2, dist_right, 0, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(1, 2, distances.left, 0, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(5, 2, distances.middle, 0, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(10, 2, distances.right, 0, &afont8x6, OLED_COLOR_NORMAL);
     OLED_printFloat(1, 3, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
     OLED_printFloat(8, 3, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
 }
 
-// 距离数据随机生成
-float randomDistanceGenerator(float min, float max) {
-    int range = (int)(max - min);
-    return min + (float)(rand() % (range + 1));
-}
+// // 距离数据随机生成
+// float randomDistanceGenerator(float min, float max) {
+//     int range = (int)(max - min);
+//     return min + (float)(rand() % (range + 1));
+// }
 
-void fuzzyTestProcess(void) {
-    if (test_process == 0) {
-        OLED_printString(1, 4, "proc 0: dist add ->", &afont8x6, OLED_COLOR_NORMAL);
+// void fuzzyTestProcess(void) {
+//     if (test_process == 0) {
+//         OLED_printString(1, 4, "proc 0: dist add ->", &afont8x6, OLED_COLOR_NORMAL);
 
-        if(dist_left < 150) dist_left += 1;
-        if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
-        if(dist_right < 150 && dist_middle > 149 && dist_left > 149) dist_right += 1;
+//         if(dist_left < 150) dist_left += 1;
+//         if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
+//         if(dist_right < 150 && dist_middle > 149 && dist_left > 149) dist_right += 1;
 
-        if(dist_left > 150) dist_left = 150;
-        if(dist_middle > 150) dist_middle = 150;
-        if(dist_right >= 150) {dist_right = 150;test_process = 1;}
-        if(dist_left < 30) dist_left = 30;
-        if(dist_middle < 30) dist_middle = 30;
-        if(dist_right < 30) dist_right = 30;
-    }
-    if (test_process == 1) {
-        OLED_printString(1, 4, "proc 1: <- dist sub", &afont8x6, OLED_COLOR_NORMAL);
+//         if(dist_left > 150) dist_left = 150;
+//         if(dist_middle > 150) dist_middle = 150;
+//         if(dist_right >= 150) {dist_right = 150;test_process = 1;}
+//         if(dist_left < 30) dist_left = 30;
+//         if(dist_middle < 30) dist_middle = 30;
+//         if(dist_right < 30) dist_right = 30;
+//     }
+//     if (test_process == 1) {
+//         OLED_printString(1, 4, "proc 1: <- dist sub", &afont8x6, OLED_COLOR_NORMAL);
 
-        if(dist_left > 30) dist_left -= 1;
-        if(dist_middle > 30 && dist_left < 31) dist_middle -= 1;
-        if(dist_right > 30 && dist_middle < 31 && dist_left < 31) dist_right -= 1;
+//         if(dist_left > 30) dist_left -= 1;
+//         if(dist_middle > 30 && dist_left < 31) dist_middle -= 1;
+//         if(dist_right > 30 && dist_middle < 31 && dist_left < 31) dist_right -= 1;
 
-        if(dist_left > 150) dist_left = 150;
-        if(dist_middle > 150) dist_middle = 150;
-        if(dist_right > 150) dist_right = 150;
-        if(dist_left < 30) dist_left = 30;
-        if(dist_middle < 30) dist_middle = 30;
-        if(dist_right <= 30) {dist_right = 30;test_process = 2;}
-    }
-    if (test_process == 2) {
-        OLED_printString(1, 4, "proc 2: random mod", &afont8x6, OLED_COLOR_NORMAL);
-        dist_left += randomDistanceGenerator(-2, 2);
-        dist_middle += randomDistanceGenerator(-2, 2);
-        dist_right += randomDistanceGenerator(-2, 2);
+//         if(dist_left > 150) dist_left = 150;
+//         if(dist_middle > 150) dist_middle = 150;
+//         if(dist_right > 150) dist_right = 150;
+//         if(dist_left < 30) dist_left = 30;
+//         if(dist_middle < 30) dist_middle = 30;
+//         if(dist_right <= 30) {dist_right = 30;test_process = 2;}
+//     }
+//     if (test_process == 2) {
+//         OLED_printString(1, 4, "proc 2: random mod", &afont8x6, OLED_COLOR_NORMAL);
+//         dist_left += randomDistanceGenerator(-2, 2);
+//         dist_middle += randomDistanceGenerator(-2, 2);
+//         dist_right += randomDistanceGenerator(-2, 2);
 
-        if(dist_left > 150) dist_left = 150;
-        if(dist_middle > 150) dist_middle = 150;
-        if(dist_right > 150) dist_right = 150;
-        if(dist_left < 30) dist_left = 30;
-        if(dist_middle < 30) dist_middle = 30;
-        if(dist_right <= 30) dist_right = 30;
-    }
-}
+//         if(dist_left > 150) dist_left = 150;
+//         if(dist_middle > 150) dist_middle = 150;
+//         if(dist_right > 150) dist_right = 150;
+//         if(dist_left < 30) dist_left = 30;
+//         if(dist_middle < 30) dist_middle = 30;
+//         if(dist_right <= 30) dist_right = 30;
+//     }
+// }

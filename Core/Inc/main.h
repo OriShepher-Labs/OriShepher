@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define RUNNING_Pin GPIO_PIN_13
+#define RUNNING_GPIO_Port GPIOC
 #define Echo_R_Pin GPIO_PIN_0
 #define Echo_R_GPIO_Port GPIOA
 #define Echo_M_Pin GPIO_PIN_1
@@ -75,10 +77,22 @@ void Error_Handler(void);
 #define Servo_2_GPIO_Port GPIOA
 #define Servo_3_Pin GPIO_PIN_0
 #define Servo_3_GPIO_Port GPIOB
-#define Servo__Pin GPIO_PIN_1
-#define Servo__GPIO_Port GPIOB
-#define Trig_R_Pin GPIO_PIN_2
+#define Servo_4_Pin GPIO_PIN_1
+#define Servo_4_GPIO_Port GPIOB
+#define Trig_R_Pin GPIO_PIN_10
 #define Trig_R_GPIO_Port GPIOB
+#define Bottom_1_Pin GPIO_PIN_11
+#define Bottom_1_GPIO_Port GPIOB
+#define Bottom_2_Pin GPIO_PIN_12
+#define Bottom_2_GPIO_Port GPIOB
+#define Bottom_3_Pin GPIO_PIN_13
+#define Bottom_3_GPIO_Port GPIOB
+#define LED_3_Pin GPIO_PIN_14
+#define LED_3_GPIO_Port GPIOB
+#define LED_2_Pin GPIO_PIN_15
+#define LED_2_GPIO_Port GPIOB
+#define LED_1_Pin GPIO_PIN_8
+#define LED_1_GPIO_Port GPIOA
 #define RC_TX_Pin GPIO_PIN_9
 #define RC_TX_GPIO_Port GPIOA
 #define RC_RX_Pin GPIO_PIN_10
