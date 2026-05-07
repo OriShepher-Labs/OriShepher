@@ -161,7 +161,7 @@ static void processResult(Ultrasonic_Sensor_t* sensor)
 // 初始化所有传感器
 void Ultrasonic_init(void)
 {
-    // 传感器0 (右): Echo_R = PA0, Trig_R = PB2
+    // 传感器0 (右): Echo_R = PA0, Trig_R = PB10
     g_sensors[0].echo_port = Echo_R_GPIO_Port;
     g_sensors[0].echo_pin = Echo_R_Pin;
     g_sensors[0].trig_port = Trig_R_GPIO_Port;
@@ -227,10 +227,11 @@ void Ultrasonic_measureAll(void)
     // 测量完成，重置为-1
     g_current_measuring_sensor = -1;
     
-    // 更新距离结构体
-    g_distances.left = g_sensors[0].distance_mm;
-    g_distances.middle = g_sensors[1].distance_mm;
-    g_distances.right = g_sensors[2].distance_mm;
+    // 更新距离结构体（修正索引映射：传感器0=右，传感器1=中，传感器2=左）
+    // 内部计算使用毫米保持精度，输出时转换为厘米并舍弃毫米位（取整）
+    g_distances.left = (float)((int)(g_sensors[2].distance_mm / 10.0f));    // 传感器2 = 左侧
+    g_distances.middle = (float)((int)(g_sensors[1].distance_mm / 10.0f));  // 传感器1 = 中间
+    g_distances.right = (float)((int)(g_sensors[0].distance_mm / 10.0f));   // 传感器0 = 右侧
     g_distances.any_expired = (expired_count > 0) ? 1 : 0;
 }
 
@@ -240,11 +241,11 @@ Ultrasonic_Distance_t Ultrasonic_getDistance(void)
     return g_distances;
 }
 
-// 获取单个传感器距离
+// 获取单个传感器距离（返回厘米单位，舍弃毫米位）
 float Ultrasonic_getSensorDistance(uint8_t sensor_id)
 {
     if(sensor_id < SENSOR_COUNT) {
-        return g_sensors[sensor_id].distance_mm;
+        return (float)((int)(g_sensors[sensor_id].distance_mm / 10.0f));
     }
     return 0;
 }

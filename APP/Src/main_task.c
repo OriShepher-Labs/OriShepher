@@ -14,8 +14,7 @@ static double dt = 0.01;              // CPG单位时间步长，用于计算每
 static SERVO_ID servo_ids[3] = {SERVO_1, SERVO_2, SERVO_3}; // 舵机ID数组
 static double servo_angles[3];        // 舵机角度数组
 // 超声测距
-Ultrasonic_Distance_t distances; // = Ultrasonic_getDistance();
-int8_t current_sensor; // = Ultrasonic_getCurrentMeasuringSensor();
+Ultrasonic_Distance_t distances;
 // FC
 extern float dist_left, dist_middle, dist_right;    // FC距离数据
 extern float g_fuzzy_result;          // 模糊控制结果数据
@@ -90,6 +89,7 @@ void remoteControl(void) {
 // 执行模糊控制
 void fuzzyControl(void) {
     // fuzzyTestProcess();
+    Ultrasonic_measureAll();  // 先执行测量
     distances = Ultrasonic_getDistance();
     CPG_setFrequency(&cpg_State, 1400);    // 默认速度
     CPG_setBias(&cpg_State, Fuzzy_update(distances.left, distances.middle, distances.right), false);

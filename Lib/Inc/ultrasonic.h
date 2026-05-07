@@ -52,11 +52,11 @@ typedef struct {
     uint8_t reject_count;               // 连续拒绝次数
 } Ultrasonic_Sensor_t;
 
-// 超声波距离结构体
+// 超声波距离结构体（输出为厘米单位，舍弃毫米位）
 typedef struct {
-    float left;   // 左侧传感器距离 (mm)
-    float middle; // 中间传感器距离 (mm)
-    float right;  // 右侧传感器距离 (mm)
+    float left;   // 左侧传感器距离 (cm)
+    float middle; // 中间传感器距离 (cm)
+    float right;  // 右侧传感器距离 (cm)
     uint8_t any_expired;  // 是否有传感器数据过期
 } Ultrasonic_Distance_t;
 
