@@ -1,6 +1,6 @@
 #include "main_task.h"
-#include "font.h"
-#include "oled.h"
+// #include "font.h"  // OLED字体库，已禁用
+// #include "oled.h"   // OLED驱动，已禁用
 
 
 // -------------------------------------------------
@@ -28,8 +28,8 @@ extern float g_fuzzy_result;
 // 初始化
 void mainTaskInit(void)
 {
-    HAL_Delay(100); // 延时100ms避免屏幕未通电
-    OLED_init();
+    // HAL_Delay(100); // 延时100ms避免屏幕未通电 - OLED已禁用
+    // OLED_init();     // OLED初始化，已禁用
     Servo_init();
     CPG_init(&cpg_State);
     SBUS_init();
@@ -53,11 +53,11 @@ void mainTask(void)
         // 无遥控器数据，切换到模糊控制模式
         fuzzyControl();
         fuzzyControlModDisplay();
-        HAL_Delay(100);
+        // HAL_Delay(100);
     }
-    OF_runningSign(1000); // 运行状态指示动画
-    OLED_showFrame(); // 显示帧
-    OLED_newFrame(); // 清除帧缓存
+    // OF_runningSign(1000); // 运行状态指示动画 - OLED已禁用
+    // OLED_showFrame(); // 显示帧 - OLED已禁用
+    // OLED_newFrame(); // 清除帧缓存 - OLED已禁用
 }
 
 // -------------------------------------------------
@@ -111,35 +111,20 @@ void fuzzyControl(void) {
 
 // 参数显示
 void screenDataDisplay(void) {
-    // 显示舵机角度（取整显示）
-    char servo_label[5];  // 四个舵机ID标签数组
+    // OLED显示已禁用，改用串口输出调试信息
     for (int i = 0; i < 3; i++) {
-        // 舵机角度数据显示
-        sprintf(servo_label, "S%d:", i + 1);
-        OLED_printString(1, i + 1, servo_label, &afont8x6, OLED_COLOR_NORMAL);
-        OLED_printFloat(4, i + 1, servo_angles[i], 0, &afont8x6, OLED_COLOR_NORMAL);
-        printf("Servo ID: %d\n", servo_ids[i]);
+        printf("Servo ID: %d, Angle: %.1f\n", servo_ids[i], servo_angles[i]);
     }
-    // CPG速度、偏置 和 腹鳍角度 数据显示
-    OLED_printString(8, 1, "a:", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 1, cpg_State.omega[0], 1, &afont8x6, OLED_COLOR_NORMAL);  // 显示浮点数，保留1位小数
-    OLED_printString(8, 2, "b:", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 2, cpg_State.bias[0], 1, &afont8x6, OLED_COLOR_NORMAL);   // 显示浮点数，保留1位小数
-    OLED_printString(8, 3, "c:", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 3, OF_mapToRange(55, 145, sbus_channels[1]), 1, &afont8x6, OLED_COLOR_NORMAL); // 腹鳍网络控制角度
+    printf("CPG Omega: %.1f, Bias: %.1f\n", cpg_State.omega[0], cpg_State.bias[0]);
+    printf("Ventral Fin Angle: %.1f\n", OF_mapToRange(55, 145, sbus_channels[1]));
 }
 
 // 无遥控器数据提示
 void fuzzyControlModDisplay() {
-    // SBUS帧未就绪，显示等待有效数据提示
-    // OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
-    // OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
-    OLED_printString(1, 1, "Fuzzy Control mode", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(1, 2, dist_left, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(5, 2, dist_middle, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 2, dist_right, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(1, 3, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(8, 3, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
+    // OLED显示已禁用，改用串口输出调试信息
+    printf("Fuzzy Control Mode\n");
+    printf("Distance: L=%.0f, M=%.0f, R=%.0f\n", dist_left, dist_middle, dist_right);
+    printf("CPG Bias: %.3f, Fuzzy Result: %.5f\n", cpg_State.bias[0], g_fuzzy_result);
 }
 
 // 距离数据随机生成
