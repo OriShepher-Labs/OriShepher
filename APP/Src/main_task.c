@@ -13,14 +13,12 @@ static double dt = 0.01;              // CPG单位时间步长，用于计算每
 // 舵机 
 static SERVO_ID servo_ids[3] = {SERVO_1, SERVO_2, SERVO_3}; // 舵机ID数组
 static double servo_angles[3];        // 舵机角度数组
-// 超声测距
-Ultrasonic_Distance_t distances;
-// FC
-extern float dist_left, dist_middle, dist_right;    // FC距离数据
-extern float g_fuzzy_result;          // 模糊控制结果数据
-
-// 测试变量
-// static int test_process = 0;
+// VL53L1X 传感器距离数据（单位：mm）
+static uint16_t g_tof_dist_front = 0;
+static uint16_t g_tof_dist_left = 0;
+static uint16_t g_tof_dist_right = 0;
+// 模糊控制结果数据
+extern float g_fuzzy_result;
 
 // -------------------------------------------------
 
@@ -32,8 +30,10 @@ void mainTaskInit(void)
     Servo_init();
     CPG_init(&cpg_State);
     SBUS_init();
-    HAL_TIM_Base_Start(&htim2);
-    Ultrasonic_init();
+    // 初始化 VL53L1X 多传感器系统
+    VL53L1X_multiInit();
+    // HAL_TIM_Base_Start(&htim2);
+    HAL_Delay(100);
 }
 
 // -------------------------------------------------
@@ -47,11 +47,12 @@ void mainTask(void)
         g_sbus_frame_ready = 0;   // 清除就绪标志
         // 处理遥控器数据
         remoteControl();
-        // 显示数据
+        // 显示遥控器数据
         remoteControlDataDisplay();
     } else {
         // 无遥控器数据，切换到模糊控制模式
         fuzzyControl();
+        // 显示模糊控制数据
         fuzzyControlDataDisplay();
     }
     OF_runningSign(1000); // 运行状态指示动画
@@ -88,14 +89,22 @@ void remoteControl(void) {
 
 // 执行模糊控制
 void fuzzyControl(void) {
-    // fuzzyTestProcess();
-    Ultrasonic_measureAll();  // 先执行测量
-    distances = Ultrasonic_getDistance();
+    // 测距数据获取
+    // 轮询检查 VL53L1X 传感器数据 非阻塞
+    VL53L1X_multiPoll();
+    
+    // 从 R M L 接口获取数据
+    g_tof_dist_front = VL53L1X_getDistance(VL53L1X_DIR_M); // Middle 对应前
+    g_tof_dist_left  = VL53L1X_getDistance(VL53L1X_DIR_L); // Left 对应左
+    g_tof_dist_right = VL53L1X_getDistance(VL53L1X_DIR_R); // Right 对应右
+
+    // 模糊控制 更新 & CPG 更新
     CPG_setFrequency(&cpg_State, 1400);    // 默认速度
-    CPG_setBias(&cpg_State, Fuzzy_update(distances.left, distances.middle, distances.right), false);
+    CPG_setBias(&cpg_State, Fuzzy_update(g_tof_dist_left, g_tof_dist_front, g_tof_dist_right), false);
     // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
+    // 应用 CPG 数据 到舵机
     // 从cpg_State提取CPG最终角度数据，然后映射为舵机角度
     for (int i = 0; i < 3; i++) {
         servo_angles[i] = CPG_mapAngleToServo(cpg_State.y[i]);
@@ -131,63 +140,25 @@ void remoteControlDataDisplay(void) {
 
 // 无遥控器数据提示
 void fuzzyControlDataDisplay() {
-    // SBUS帧未就绪，显示等待有效数据提示
-    // OLED_printString(6, 2, "Waiting for", &afont12x6, OLED_COLOR_NORMAL);
-    // OLED_printString(4, 5, "SBUS signal", &afont16x8, OLED_COLOR_NORMAL);
-    OLED_printString(1, 1, "Fuzzy Control mode", &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(1, 2, distances.left, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(5, 2, distances.middle, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(10, 2, distances.right, 0, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(1, 3, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
-    OLED_printFloat(8, 3, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
+    // 控制模式显示
+    OLED_printString(1, 8, "Fuzzy Control mode", &afont8x6, OLED_COLOR_NORMAL);
+    
+    // 显示距离数据
+    // 按 R(右)、M(前)、L(左) 顺序显示
+    // 第一行：R（右方）
+    OLED_printString(1, 1, "R:", &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(6, 1, g_tof_dist_right / 10.0, 1, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printString(12, 1, "cm", &afont8x6, OLED_COLOR_NORMAL);
+    // 第二行：M（前方/Middle）
+    OLED_printString(1, 2, "M:", &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(6, 2, g_tof_dist_front / 10.0, 1, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printString(12, 2, "cm", &afont8x6, OLED_COLOR_NORMAL);
+    // 第三行：L（左方）
+    OLED_printString(1, 3, "L:", &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(6, 3, g_tof_dist_left / 10.0, 1, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printString(12, 3, "cm", &afont8x6, OLED_COLOR_NORMAL);
+    
+    // 显示模糊控制结果
+    OLED_printFloat(1, 4, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_printFloat(8, 4, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
 }
-
-// // 距离数据随机生成
-// float randomDistanceGenerator(float min, float max) {
-//     int range = (int)(max - min);
-//     return min + (float)(rand() % (range + 1));
-// }
-
-// void fuzzyTestProcess(void) {
-//     if (test_process == 0) {
-//         OLED_printString(1, 4, "proc 0: dist add ->", &afont8x6, OLED_COLOR_NORMAL);
-
-//         if(dist_left < 150) dist_left += 1;
-//         if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
-//         if(dist_right < 150 && dist_middle > 149 && dist_left > 149) dist_right += 1;
-
-//         if(dist_left > 150) dist_left = 150;
-//         if(dist_middle > 150) dist_middle = 150;
-//         if(dist_right >= 150) {dist_right = 150;test_process = 1;}
-//         if(dist_left < 30) dist_left = 30;
-//         if(dist_middle < 30) dist_middle = 30;
-//         if(dist_right < 30) dist_right = 30;
-//     }
-//     if (test_process == 1) {
-//         OLED_printString(1, 4, "proc 1: <- dist sub", &afont8x6, OLED_COLOR_NORMAL);
-
-//         if(dist_left > 30) dist_left -= 1;
-//         if(dist_middle > 30 && dist_left < 31) dist_middle -= 1;
-//         if(dist_right > 30 && dist_middle < 31 && dist_left < 31) dist_right -= 1;
-
-//         if(dist_left > 150) dist_left = 150;
-//         if(dist_middle > 150) dist_middle = 150;
-//         if(dist_right > 150) dist_right = 150;
-//         if(dist_left < 30) dist_left = 30;
-//         if(dist_middle < 30) dist_middle = 30;
-//         if(dist_right <= 30) {dist_right = 30;test_process = 2;}
-//     }
-//     if (test_process == 2) {
-//         OLED_printString(1, 4, "proc 2: random mod", &afont8x6, OLED_COLOR_NORMAL);
-//         dist_left += randomDistanceGenerator(-2, 2);
-//         dist_middle += randomDistanceGenerator(-2, 2);
-//         dist_right += randomDistanceGenerator(-2, 2);
-
-//         if(dist_left > 150) dist_left = 150;
-//         if(dist_middle > 150) dist_middle = 150;
-//         if(dist_right > 150) dist_right = 150;
-//         if(dist_left < 30) dist_left = 30;
-//         if(dist_middle < 30) dist_middle = 30;
-//         if(dist_right <= 30) dist_right = 30;
-//     }
-// }

@@ -59,18 +59,14 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define RUNNING_Pin GPIO_PIN_13
 #define RUNNING_GPIO_Port GPIOC
-#define Echo_R_Pin GPIO_PIN_0
-#define Echo_R_GPIO_Port GPIOA
-#define Echo_M_Pin GPIO_PIN_1
-#define Echo_M_GPIO_Port GPIOA
-#define Echo_L_Pin GPIO_PIN_2
-#define Echo_L_GPIO_Port GPIOA
-#define Trig_L_Pin GPIO_PIN_3
-#define Trig_L_GPIO_Port GPIOA
+#define TOF_R_SHUT_Pin GPIO_PIN_0
+#define TOF_R_SHUT_GPIO_Port GPIOA
+#define TOF_M_SHUT_Pin GPIO_PIN_1
+#define TOF_M_SHUT_GPIO_Port GPIOA
+#define TOF_L_SHUT_Pin GPIO_PIN_2
+#define TOF_L_SHUT_GPIO_Port GPIOA
 #define POWER_READ_Pin GPIO_PIN_4
 #define POWER_READ_GPIO_Port GPIOA
-#define Trig_M_Pin GPIO_PIN_5
-#define Trig_M_GPIO_Port GPIOA
 #define Servo_1_Pin GPIO_PIN_6
 #define Servo_1_GPIO_Port GPIOA
 #define Servo_2_Pin GPIO_PIN_7
@@ -79,8 +75,6 @@ void Error_Handler(void);
 #define Servo_3_GPIO_Port GPIOB
 #define Servo_4_Pin GPIO_PIN_1
 #define Servo_4_GPIO_Port GPIOB
-#define Trig_R_Pin GPIO_PIN_10
-#define Trig_R_GPIO_Port GPIOB
 #define Bottom_1_Pin GPIO_PIN_11
 #define Bottom_1_GPIO_Port GPIOB
 #define Bottom_2_Pin GPIO_PIN_12
