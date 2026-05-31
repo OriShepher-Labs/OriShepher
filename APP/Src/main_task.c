@@ -120,6 +120,10 @@ void fuzzyControl(void) {
 
 // 参数显示
 void remoteControlDataDisplay(void) {
+    // 控制模式显示
+    OLED_printString(1, 8, "Remote Control mode", &afont8x6, OLED_COLOR_NORMAL);
+
+
     // 显示舵机角度（取整显示）
     char servo_label[5];  // 四个舵机ID标签数组
     for (int i = 0; i < 3; i++) {
@@ -161,4 +165,6 @@ void fuzzyControlDataDisplay() {
     // 显示模糊控制结果
     OLED_printFloat(1, 4, cpg_State.bias[0], 3, &afont8x6, OLED_COLOR_NORMAL);
     OLED_printFloat(8, 4, g_fuzzy_result, 5, &afont8x6, OLED_COLOR_NORMAL);
+    OLED_PrintASCIIChar(9*6, 5*8, OF_getDirectionChar(g_fuzzy_result), &afont8x6, OLED_COLOR_NORMAL);
+
 }

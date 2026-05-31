@@ -15,4 +15,17 @@ void OF_runningSign(uint16_t refresh_ms);
  */
 double OF_mapToRange(double target_min, double target_max, double sbus_value);
 
+/**
+ * @brief 根据模糊控制结果获取方向指示字符
+ * @param fuzzy_result 模糊控制结果数值
+ * @return char 方向字符：'\'、'|'、'/'、'-'
+ * @details 根据数值范围返回对应的方向符号：
+ *          < -2:  '-' (向左水平)
+ *          -2 ~ -1: '\' (向左下)
+ *          -1 ~ 1:  '|' (垂直)
+ *          1 ~ 2:   '/' (向右下)
+ *          > 2:     '-' (向右水平)
+ */
+char OF_getDirectionChar(double fuzzy_result);
+
 #endif
