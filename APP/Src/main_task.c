@@ -100,7 +100,7 @@ void fuzzyControl(void) {
 
     // 模糊控制 更新 & CPG 更新
     CPG_setFrequency(&cpg_State, 1400);    // 默认速度
-    CPG_setBias(&cpg_State, Fuzzy_update(g_tof_dist_left, g_tof_dist_front, g_tof_dist_right), false);
+    CPG_setBias(&cpg_State, Fuzzy_update(g_tof_dist_left / 10.0f, g_tof_dist_front / 10.0f, g_tof_dist_right / 10.0f), false);
     // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
