@@ -69,10 +69,29 @@ void remoteControl(void) {
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
     
-    // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State的相关参数
-    CPG_setFrequency(&cpg_State, sbus_channels[2]);         // CH3控制速度
-    CPG_setBias(&cpg_State, sbus_channels[3], true);        // CH4控制偏置
-    // 根据cpg_State现有的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
+    // CH5舵机锁检测：CH5为负（拨杆向前）时所有舵机归零，禁止控制
+    if (sbus_channels[4] < 1024) {
+        for (int i = 0; i < 3; i++) {
+            Servo_setAngle(servo_ids[i], 0.0f);
+        }
+        Servo_setAngle(SERVO_4, 0.0f);
+        return;     // 跳出函数，终止后续处理
+    }
+    
+    // CH6速度档位调节：正=全速(×1.0)，零=降一档(×0.8)，负=降两档(×0.6)
+    double speed_multiplier;
+    if (sbus_channels[5] > 1300) {
+        speed_multiplier = 1.0;
+    } else if (sbus_channels[5] > 700) {
+        speed_multiplier = 0.8;
+    } else {
+        speed_multiplier = 0.6;
+    }
+
+    // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
+    CPG_setFrequency(&cpg_State, (double)sbus_channels[2] * speed_multiplier);    // CH3控制速度
+    CPG_setBias(&cpg_State, sbus_channels[3]);         // CH4控制偏置
+    // 根据cpg_State的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
     // 从cpg_State提取CPG最终角度数据，然后映射为舵机角度
