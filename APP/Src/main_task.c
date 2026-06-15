@@ -61,6 +61,15 @@ void remoteDataProcess(void) {
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
     
+    // CH5安全锁检测：CH5为负（拨杆向前）时所有舵机归零，禁止控制
+    if (sbus_channels[4] < 1024) {
+        for (int i = 0; i < 3; i++) {
+            Servo_setAngle(servo_ids[i], 0.0f);
+        }
+        Servo_setAngle(SERVO_4, 0.0f);
+        return;     // 跳出函数，终止后续处理
+    }
+    
     // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
     CPG_setFrequency(&cpg_State, sbus_channels[2]);    // CH3控制速度
     CPG_setBias(&cpg_State, sbus_channels[3]);         // CH4控制偏置
