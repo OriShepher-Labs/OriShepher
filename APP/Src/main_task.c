@@ -81,7 +81,7 @@ void remoteDataProcess(void) {
     }
     // 应用舵机角度
     for (int i = 0; i < 3; i++) {
-        Servo_setAngle(servo_ids[i], servo_angles[i]); // 分别设定3个舵机
+        Servo_setAngle(servo_ids[i], servo_angles[i] - 13); // 分别设定3个舵机
     }
     Servo_setAngle(SERVO_4, OF_mapToRange(55, 145, sbus_channels[1])); // CH2控制腹鳍舵机角度
 }
