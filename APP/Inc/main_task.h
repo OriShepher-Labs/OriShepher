@@ -14,21 +14,24 @@
 
 // 用户自定义与功能逻辑库 (User Application Layer)
 #include "oled.h"
+#include "SBUS.h"
 #include "cpg_algorithm.h"
+#include "VL53L1X_control.h"
 #include "fuzzy_control.h"
 #include "servo_control.h"
-#include "SBUS.h"
 #include "other_functions.h"
 
 void mainTaskInit(void);
 void mainTask(void);
 
-void remoteDataProcess(void);
+void remoteControl(void);
+void remoteControlDataDisplay(void);
 void fuzzyControl(void);
+void fuzzyControlDataDisplay(void);
 
-void screenDataDisplay(void);
-void fuzzyControlModDisplay(void);
 float randomDistanceGenerator(float min, float max);
+void fuzzyTestProcess(void);
+
 
 
 #endif

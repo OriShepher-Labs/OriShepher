@@ -48,3 +48,28 @@ double OF_mapToRange(double target_min, double target_max, double sbus_value) {
     // // 映射到目标范围（支持正负范围）
     // return target_min + normalized * (target_max - target_min);
 }
+
+/**
+ * @brief 根据模糊控制结果获取方向指示字符
+ * @param fuzzy_result 模糊控制结果数值
+ * @return char 方向字符：'\'、'|'、'/'、'-'
+ * @details 根据数值范围返回对应的方向符号：
+ *          < -2:  '-' (向左水平)
+ *          -2 ~ -1: '\' (向左下)
+ *          -1 ~ 1:  '|' (垂直)
+ *          1 ~ 2:   '/' (向右下)
+ *          > 2:     '-' (向右水平)
+ */
+char OF_getDirectionChar(double fuzzy_result) {
+    if (fuzzy_result < -2.0) {
+        return '-';
+    } else if (fuzzy_result < -1.0) {
+        return '\\';
+    } else if (fuzzy_result < 1.0) {
+        return '|';
+    } else if (fuzzy_result < 2.0) {
+        return '/';
+    } else {
+        return '-';
+    }
+}

@@ -48,11 +48,14 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # 源文件路径(.c)
     APP/Src/main_task.c
     Lib/Src/cpg_algorithm.c
+    Lib/Src/VL53L1X_api.c
+    Lib/Src/VL53L1X_control.c
+    Lib/Src/vl53l1_platform.c
     Lib/Src/fuzzy_control.c
+    Lib/Src/servo_control.c
     Lib/Src/font.c
     Lib/Src/oled.c
     Lib/Src/SBUS.c
-    Lib/Src/servo_control.c
     Lib/Src/other_functions.c
 )
 

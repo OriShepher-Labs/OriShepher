@@ -2,7 +2,6 @@
 #define _SBUS_H
 
 /*
-感谢 LGQWakkk 的开源仓库 https://github.com/LGQWakkk/STM32_SBUS_RX
 注意一定要使用三极管硬件信号取反，还有接收机三极管单片机共地之类的问题
 
 1. 三极管基极（B）的连接
