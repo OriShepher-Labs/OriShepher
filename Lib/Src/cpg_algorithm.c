@@ -188,7 +188,7 @@ void CPG_update(CPG_State *state, double dt) {
 double CPG_mapAngleToServo(double y_value) {
     // 1. 限制CPG输出范围（论文式3-89：y∈[-9,9]）
     double y_clamped = (y_value < -9.0)? -9.0 : (y_value > 9.0)? 9.0 : y_value;
-    // 2. 放大倍数（论文λ=10）→ [-90,90]
+    // 2. 放大n倍（论文λ=10）→ [-90,90]
     double angle_raw = y_clamped * 7.0;
     // 3. 偏移到80~120（中间值100）
     return 100 + angle_raw;

@@ -96,38 +96,38 @@ void SBUS_decodeChannels(uint16_t* channels)
     // 【第二步】逐通道解码11位数据
     uint16_t channel_value = 0;
 
-    // 【CH1】通道1解码
+    // 【CH1】通道1解码     副翼    正  右摇杆左右轴    左负右正
     channel_value = 0;
     channel_value = (sbus_frame_buffer[2] & 0x07) << 8;  // 高3位
     channel_value = channel_value | sbus_frame_buffer[1];  // 低8位
     channels[0] = channel_value;
 
-    // 【CH2】通道2解码
+    // 【CH2】通道2解码     升降    反  左摇杆上下轴    上正下负            升降
     channel_value = 0;
     channel_value = (sbus_frame_buffer[3] & 0x3f) << 5;  // 高6位
     channel_value = channel_value | (sbus_frame_buffer[2] >> 3);  // 低5位
     channels[1] = channel_value;
 
-    // 【CH3】通道3解码
+    // 【CH3】通道3解码     油门    反  右摇杆上下轴    上正下负            油门
     channel_value = 0;
     channel_value = (sbus_frame_buffer[5] & 0x01) << 10;  // 高1位
     channel_value = channel_value | (sbus_frame_buffer[4] << 2);  // 中8位
     channel_value = channel_value | (sbus_frame_buffer[3] >> 6);  // 低2位
     channels[2] = channel_value;
 
-    // 【CH4】通道4解码
+    // 【CH4】通道4解码     方向    正  左摇杆左右轴    左负右正            方向
     channel_value = 0;
     channel_value = (sbus_frame_buffer[6] & 0x0f) << 7;  // 高4位
     channel_value = channel_value | (sbus_frame_buffer[5] >> 1);  // 低7位
     channels[3] = channel_value;
 
-    // 【CH5】通道5解码
+    // 【CH5】通道5解码     通道5   正  SA 拨杆         两档 前负·后正      锁定舵机
     channel_value = 0;
     channel_value = (sbus_frame_buffer[7] & 0x7f) << 4;  // 高7位
     channel_value = channel_value | (sbus_frame_buffer[6] >> 4);  // 低4位
     channels[4] = channel_value;
 
-    // 【CH6】通道6解码
+    // 【CH6】通道6解码     通道6   正  SB 拨杆         三档 前负·中零·后正 调档
     channel_value = 0;
     channel_value = (sbus_frame_buffer[9] & 0x03) << 9;  // 高2位
     channel_value = channel_value | (sbus_frame_buffer[8] << 1);  // 中8位
