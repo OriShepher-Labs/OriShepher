@@ -69,13 +69,16 @@ void remoteDataProcess(void) {
     SBUS_decodeChannels(sbus_channels); // 解码SBUS帧为sbus_channels数组
     SBUS_clearFrameBuffer();                      // 清空SBUS缓冲区
     
-    // CH5舵机锁检测：CH5为负（拨杆向前）时所有舵机归零，禁止控制
+    // CH5舵机锁检测：CH5为负（拨杆向前）时所有舵机归零、Servo_switch输出低电平；为正时Servo_switch输出高电平
     if (sbus_channels[4] < 1024) {
         for (int i = 0; i < 3; i++) {
             Servo_setAngle(servo_ids[i], 0.0f);
         }
         Servo_setAngle(SERVO_4, 0.0f);
+        HAL_GPIO_WritePin(Servo_switch_GPIO_Port, Servo_switch_Pin, GPIO_PIN_RESET);
         return;     // 跳出函数，终止后续处理
+    } else {
+        HAL_GPIO_WritePin(Servo_switch_GPIO_Port, Servo_switch_Pin, GPIO_PIN_SET);
     }
     
     // CH6速度档位调节：正=全速(×1.0)，零=降一档(×0.8)，负=降两档(×0.6)
@@ -90,7 +93,7 @@ void remoteDataProcess(void) {
 
     // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
     CPG_setFrequency(&cpg_State, (double)sbus_channels[2] * speed_multiplier);    // CH3控制速度
-    CPG_setBias(&cpg_State, sbus_channels[3]);         // CH4控制偏置
+    CPG_setBias(&cpg_State, sbus_channels[3], true);   // CH4控制偏置（need_mapping=true：原始通道值需映射）
     // 根据cpg_State的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
