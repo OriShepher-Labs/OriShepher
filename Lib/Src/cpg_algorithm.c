@@ -57,10 +57,10 @@ void setPhaseDirection(CPG_State *state, int reverse) {
  *              使用SBUS通道2的数据，映射范围 (-5.5, 5.5)
  * @details 所有振荡器频率统一设置为 freq
  */
-void CPG_setFrequency(CPG_State *state, double freq) {
+void CPG_setFrequency(CPG_State *state, double freq, double speed_multiplier) {
     // 遍历3个振荡器，设置频率为freq并限制在(-5.5, 5.5)范围内
     for (int i = 0; i < 3; i++) {
-        state->omega[i] = M_PI * fabs(OF_mapToRange(-5.5, 5.5, freq)); // freq为Hz
+        state->omega[i] = M_PI * fabs(OF_mapToRange(-5.5, 5.5, freq) * speed_multiplier); // freq为Hz
     }
     // freq为负时调转相位为后退状态
     if (freq < 0) {
