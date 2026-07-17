@@ -84,11 +84,11 @@ void remoteDataProcess(void) {
     // CH6速度档位调节：正=全速(×1.0)，零=降一档(×0.8)，负=降两档(×0.6)
     double speed_multiplier;
     if (sbus_channels[5] > 1300) {
-        speed_multiplier = 0.8;
+        speed_multiplier = 1.3;
     } else if (sbus_channels[5] > 700) {
-        speed_multiplier = 0.5;
+        speed_multiplier = 1;
     } else {
-        speed_multiplier = 0.2;
+        speed_multiplier = 0.5;
     }
 
     // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
