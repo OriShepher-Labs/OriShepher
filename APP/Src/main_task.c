@@ -51,8 +51,8 @@ void mainTask(void)
         screenDataDisplay();
     } else {
         // 无遥控器数据，切换到模糊控制模式
-        fuzzyControl();
-        fuzzyControlModDisplay();
+        // fuzzyControl();
+        // fuzzyControlModDisplay();
         // HAL_Delay(100);
     }
     // OF_runningSign(1000); // 运行状态指示动画 - OLED已禁用
@@ -114,18 +114,18 @@ void fuzzyControl(void) {
     // dist_middle += randomDistanceGenerator(-2, 2);
     // dist_right += randomDistanceGenerator(-2, 2);
 
-    if(dist_left < 150) dist_left += 1;
-    if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
-    if(dist_right < 150 && dist_middle > 149 && dist_left > 149) dist_right += 1;
+    // if(dist_left < 150) dist_left += 1;
+    // if(dist_middle < 150 && dist_left > 149) dist_middle += 1;
+    // if(dist_right < 150 && dist_middle > 149 && dist_left > 149) dist_right += 1;
 
-    if(dist_left > 150) dist_left = 150;
-    if(dist_middle > 150) dist_middle = 150;
-    if(dist_right > 150) dist_right = 150;
-    if(dist_left < 30) dist_left = 30;
-    if(dist_middle < 30) dist_middle = 30;
-    if(dist_right < 30) dist_right = 30;
+    // if(dist_left > 150) dist_left = 150;
+    // if(dist_middle > 150) dist_middle = 150;
+    // if(dist_right > 150) dist_right = 150;
+    // if(dist_left < 30) dist_left = 30;
+    // if(dist_middle < 30) dist_middle = 30;
+    // if(dist_right < 30) dist_right = 30;
 
-    CPG_setBias(&cpg_State, Fuzzy_update(dist_left, dist_middle, dist_right), false);
+    // CPG_setBias(&cpg_State, Fuzzy_update(dist_left, dist_middle, dist_right), false);
 }
 
 // -------------------------------------------------
@@ -134,23 +134,23 @@ void fuzzyControl(void) {
 // 参数显示
 void screenDataDisplay(void) {
     // OLED显示已禁用，改用串口输出调试信息
-    for (int i = 0; i < 3; i++) {
-        printf("Servo ID: %d, Angle: %.1f\n", servo_ids[i], servo_angles[i]);
-    }
-    printf("CPG Omega: %.1f, Bias: %.1f\n", cpg_State.omega[0], cpg_State.bias[0]);
-    printf("Ventral Fin Angle: %.1f\n", OF_mapToRange(55, 145, sbus_channels[1]));
+    // for (int i = 0; i < 3; i++) {
+    //     printf("Servo ID: %d, Angle: %.1f\n", servo_ids[i], servo_angles[i]);
+    // }
+    // printf("CPG Omega: %.1f, Bias: %.1f\n", cpg_State.omega[0], cpg_State.bias[0]);
+    // printf("Ventral Fin Angle: %.1f\n", OF_mapToRange(55, 145, sbus_channels[1]));
 }
 
 // 无遥控器数据提示
 void fuzzyControlModDisplay() {
     // OLED显示已禁用，改用串口输出调试信息
-    printf("Fuzzy Control Mode\n");
-    printf("Distance: L=%.0f, M=%.0f, R=%.0f\n", dist_left, dist_middle, dist_right);
-    printf("CPG Bias: %.3f, Fuzzy Result: %.5f\n", cpg_State.bias[0], g_fuzzy_result);
+    // printf("Fuzzy Control Mode\n");
+    // printf("Distance: L=%.0f, M=%.0f, R=%.0f\n", dist_left, dist_middle, dist_right);
+    // printf("CPG Bias: %.3f, Fuzzy Result: %.5f\n", cpg_State.bias[0], g_fuzzy_result);
 }
 
 // 距离数据随机生成
 float randomDistanceGenerator(float min, float max) {
-    int range = (int)(max - min);
-    return min + (float)(rand() % (range + 1));
+    // int range = (int)(max - min);
+    // return min + (float)(rand() % (range + 1));
 }
