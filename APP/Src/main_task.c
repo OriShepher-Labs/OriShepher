@@ -90,7 +90,7 @@ void remoteControl(void) {
 
     // 将接收到的遥控器原始数据(各通道值)参数 传入cpg_State
     CPG_setFrequency(&cpg_State, (double)sbus_channels[2] * speed_multiplier);    // CH3控制速度
-    CPG_setBias(&cpg_State, sbus_channels[3]);         // CH4控制偏置
+    CPG_setBias(&cpg_State, sbus_channels[3], true);         // CH4控制偏置
     // 根据cpg_State的所有参数随时间步长dt计算更新一次CPG数据。把cpg_State地址传入函数，新的数据将直接写入cpg_State
     CPG_update(&cpg_State, dt);
     
